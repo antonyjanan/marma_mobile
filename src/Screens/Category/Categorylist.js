@@ -1,5 +1,6 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/core';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   StyleSheet,
   View,
@@ -17,40 +18,16 @@ const Categorylist = () => {
   const [expandedCategory, setExpandedCategory] = useState('Fruits');
   const [search, setSearch] = useState(false);
   const [category, setCategory] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
+  const [product, setProduct] = useState([]);
 
   const navigation = useNavigation();
-
-  // const handlePress = () => {
-  //     navigation.navigate('Login');
-  // };
-
-  const categories = [
-    {
-      id: 'fishes',
-      name: 'Fishes',
-      icon: require('../../assets/images/Fishimage/splashimage.png'),
-    },
-    {
-      id: 'fruits',
-      name: 'Fruits',
-      icon: require('../../assets/images/Fishimage/splashimage.png'),
-    },
-    {
-      id: 'vegetables',
-      name: 'Vegetables',
-      icon: require('../../assets/images/Fishimage/splashimage.png'),
-    },
-  ];
-
-  const fruitSubcategories = [
-    {id: 'banana', name: 'Banana'},
-    {id: 'mango', name: 'Mango'},
-    {id: 'jackfruit', name: 'Jackfruit'},
-    {id: 'guava', name: 'Guava'},
-    {id: 'watermelon', name: 'Watermelon'},
-    {id: 'apple', name: 'Apple'},
-    {id: 'orange', name: 'Orange'},
-  ];
+  useEffect(() => {
+    categoryList();
+  }, []);
+  useEffect(() => {
+    fetchProduct();
+  }, [category]);
 
   const profileCards = [
     {
@@ -94,6 +71,56 @@ const Categorylist = () => {
         console.log(error, 'error');
       });
   };
+  const fetchSubcategories = async categoryId => {
+    const Bearer = await AsyncStorage.getItem('user_token');
+    fetch('https://healthyfresh.lunarsenterprises.com/fishapp/subcategory', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${Bearer}`,
+      },
+      // body: JSON.stringify({category_id: categoryId}), dd
+    })
+      .then(response => response.json())
+      .then(data => {
+        // console.log(data, 'dtaasdss');
+
+        if (data.result) {
+          setSubcategories(data.list || []);
+        } else {
+          console.log('Error fetching subcategories:', data.message);
+          setSubcategories([]);
+        }
+      })
+      .catch(error => {
+        console.log('Subcategory API error:', error);
+        setSubcategories([]);
+      });
+  };
+  const fetchProduct = categoryId => {
+    fetch('https://healthyfresh.lunarsenterprises.com/fishapp/list/products', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({c_id: categoryId ? categoryId : category[0]?.c_id}),
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.result) {
+          setProduct(data?.list || []);
+        } else {
+          console.log('Error fetching subcategories:', data.message);
+          setProduct([]);
+        }
+      })
+      .catch(error => {
+        console.log('Subcategory API error:', error);
+        setProduct([]);
+      });
+  };
+
+  const baseurl = 'https://healthyfresh.lunarsenterprises.com/';
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar
@@ -164,54 +191,48 @@ const Categorylist = () => {
       <View style={styles.content}>
         <View style={styles.sidebar}>
           <ScrollView showsVerticalScrollIndicator={false}>
-            {categories.map(category => (
-              <View key={category.id}>
+            {category.map(category => (
+              <View key={category.c_id}>
                 <TouchableOpacity
                   style={[
                     styles.categoryItem,
-                    selectedCategory === category.name &&
+                    selectedCategory === category.c_name &&
                       styles.selectedCategory,
                   ]}
                   onPress={() => {
-                    setSelectedCategory(category.name);
-                    toggleCategoryExpansion(category.name);
+                    setSelectedCategory(category.c_name);
+                    toggleCategoryExpansion(category.c_name);
+                    fetchSubcategories(category.c_id);
+                    fetchProduct(category.c_id);
                   }}>
-                  <Image source={category.icon} style={styles.categoryIcon} />
-                  <Text style={styles.categoryText}>{category.name}</Text>
-                  {category.name === 'Fruits' && (
-                    <TouchableOpacity
-                      style={{}}
-                      onPress={() => {
-                        setSelectedCategory(category.name);
-                        toggleCategoryExpansion(category.name);
-                      }}>
-                      <Image
-                        source={
-                          expandedCategory === 'Fruits'
-                            ? require('../../assets/images/Fishimage/Up.png')
-                            : require('../../assets/images/Fishimage/Down.png')
-                        }
-                        style={styles.downarrow}
-                        resizeMode="contain"
-                      />
-                    </TouchableOpacity>
-                  )}
+                  <Image
+                    src={baseurl + category.c_image}
+                    style={styles.categoryIcon}
+                  />
+                  <Text style={styles.categoryText}>{category.c_name}</Text>
+                  <Image
+                    source={
+                      expandedCategory === category.c_name
+                        ? require('../../assets/images/Fishimage/Up.png')
+                        : require('../../assets/images/Fishimage/Down.png')
+                    }
+                    style={styles.downarrow}
+                    resizeMode="contain"
+                  />
                 </TouchableOpacity>
 
-                {category.name === 'Fruits' &&
-                  expandedCategory === 'Fruits' && (
-                    <View style={styles.subcategoriesContainer}>
-                      {fruitSubcategories.map(subcategory => (
-                        <TouchableOpacity
-                          key={subcategory.id}
-                          style={styles.subcategoryItem}>
-                          <Text style={styles.subcategoryText}>
-                            {subcategory.name}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                    </View>
-                  )}
+                {expandedCategory === category.c_name && (
+                  <View style={styles.subcategoriesContainer}>
+                    {subcategories.map(sub => (
+                      <TouchableOpacity
+                        key={sub.id}
+                        style={styles.subcategoryItem}
+                        onPress={() => fetchProduct(sub.sub_category_id)}>
+                        <Text style={styles.subcategoryText}>{sub.name}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
               </View>
             ))}
           </ScrollView>
@@ -220,15 +241,23 @@ const Categorylist = () => {
         {/* Right content */}
         <View style={styles.mainContent}>
           <View style={styles.profileCardsContainer}>
-            {profileCards.map(profile => (
-              <View key={profile.id} style={styles.profileCard}>
-                <Image source={profile.image} style={styles.profileImage} />
-                <Text style={styles.profileName}>{profile.name}</Text>
-                {profile.surname && (
-                  <Text style={styles.profileSurname}>{profile.surname}</Text>
-                )}
-              </View>
-            ))}
+            {product.map((categoryObj, index) => {
+              const categoryName = Object.keys(categoryObj)[0];
+              const items = categoryObj[categoryName];
+
+              return items.map(profile => (
+                <View key={profile.p_id} style={styles.profileCard}>
+                  <Image
+                    source={{uri: baseurl + profile.p_image}}
+                    style={styles.profileImage}
+                  />
+                  <Text style={styles.profileName}>{profile.p_name}</Text>
+                  {profile.surname && (
+                    <Text style={styles.profileSurname}>{profile.surname}</Text>
+                  )}
+                </View>
+              ));
+            })}
           </View>
         </View>
       </View>
@@ -259,8 +288,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   downarrow: {
-    width: 15,
-    height: 15,
+    width: 10,
+    height: 10,
   },
   headerTitle: {
     fontSize: 20,
@@ -287,7 +316,7 @@ const styles = StyleSheet.create({
   categoryItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
+    padding: 15,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
     backgroundColor: '#F5F5F5',
@@ -304,7 +333,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   categoryText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '500',
     flex: 1,
   },

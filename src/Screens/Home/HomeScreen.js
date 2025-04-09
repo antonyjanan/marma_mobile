@@ -61,46 +61,18 @@ const banners = [
   },
 ];
 
-const categories = [
-  {
-    name: 'Fish',
-    icon: require('../../assets/images/Fishimage/splashimage.png'),
-  },
-  {
-    name: 'Fruits',
-    icon: require('../../assets/images/Fishimage/splashimage.png'),
-  },
-  {
-    name: 'Vegetables',
-    icon: require('../../assets/images/Fishimage/splashimage.png'),
-  },
-  {
-    name: 'Milk',
-    icon: require('../../assets/images/Fishimage/splashimage.png'),
-  },
-  {
-    name: 'Biscuit',
-    icon: require('../../assets/images/Fishimage/splashimage.png'),
-  },
-  {
-    name: 'Juice',
-    icon: require('../../assets/images/Fishimage/splashimage.png'),
-  },
-  {
-    name: 'Meat',
-    icon: require('../../assets/images/Fishimage/splashimage.png'),
-  },
-];
 const HomeScreen = () => {
   const navigation = useNavigation();
   const [favorites, setFavorites] = useState({});
   const [cartVisible, setCartVisible] = useState(false);
   const [category, setCategory] = useState([]);
   const [banner, setBanner] = useState([]);
+  const [offers, setOffers] = useState([]);
 
   useEffect(() => {
     categoryList();
     BannerList();
+    productList();
   }, []);
 
   const categoryList = () => {
@@ -129,6 +101,22 @@ const HomeScreen = () => {
 
         if (data.result) {
           setBanner(data?.list);
+        } else {
+          console.log(data.message, 'error in banner response');
+        }
+      })
+      .catch(error => {
+        console.log(error, 'error');
+      });
+  };
+  const productList = () => {
+    fetch('https://healthyfresh.lunarsenterprises.com/fishapp/list/products', {
+      method: 'POST',
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.result) {
+          setOffers(data?.list);
         } else {
           console.log(data.message, 'error in banner response');
         }
@@ -255,7 +243,9 @@ const HomeScreen = () => {
                 <View style={styles.cardContainer}>
                   <View style={styles.discountBanner}>
                     <View style={styles.bannerTextContainer}>
-                      <Text style={styles.bannerTitle}>{item.description}</Text>
+                      <Text style={styles.bannerTitle}>
+                        {item.b_description}
+                      </Text>
                       <TouchableOpacity style={styles.orderButton}>
                         <Text style={styles.orderButtonText}>Order now</Text>
                       </TouchableOpacity>
@@ -321,77 +311,85 @@ const HomeScreen = () => {
             horizontal
             showsHorizontalScrollIndicator={false}
             style={styles.scrollView}>
-            {offerItems.map((item, index) => (
-              <TouchableOpacity
-                key={index}
-                style={styles.offerItem}
-                onPress={() => navigation.navigate('Product_view_Screen')}>
-                {/* Favorite Button */}
+            {offers?.map((categoryObj, index) => {
+              const categoryName = Object.keys(categoryObj)[0];
+              const items = categoryObj[categoryName];
+
+              return items?.map(item => (
                 <TouchableOpacity
-                  style={styles.favoriteIcon}
-                  onPress={() => toggleFavorite(index)}>
-                  <Image
-                    source={
-                      favorites[index]
-                        ? require('../../assets/images/Fishimage/favourtieheart.png')
-                        : require('../../assets/images/Fishimage/unfavourtie.png')
-                    }
-                    style={[
-                      styles.heartIcon,
-                      favorites[index]
-                        ? styles.favoriteHeart
-                        : styles.unfavoriteHeart,
-                    ]}
-                    resizeMode="contain"
-                  />
-                </TouchableOpacity>
-
-                <Image source={item.image} style={styles.offerImage} />
-
-                <View style={styles.offerDetails}>
-                  <Text style={styles.offerName}>{item.name}</Text>
-
-                  <View style={styles.Star}>
+                  key={index}
+                  style={styles.offerItem}
+                  onPress={() => navigation.navigate('Product_view_Screen')}>
+                  {/* Favorite Button */}
+                  <TouchableOpacity
+                    style={styles.favoriteIcon}
+                    onPress={() => toggleFavorite(index)}>
                     <Image
                       source={
-                        require('../../assets/images/Fishimage/star.png') // Red Heart
+                        favorites[index]
+                          ? require('../../assets/images/Fishimage/favourtieheart.png')
+                          : require('../../assets/images/Fishimage/unfavourtie.png')
                       }
-                      style={styles.starIcon}
+                      style={[
+                        styles.heartIcon,
+                        favorites[index]
+                          ? styles.favoriteHeart
+                          : styles.unfavoriteHeart,
+                      ]}
                       resizeMode="contain"
                     />
-                    <Text style={styles.ratingText}>{item.rating}</Text>
-                  </View>
-                </View>
-                <Text style={styles.offerPrice}>
-                  {item.price} /{' '}
-                  <Text style={styles.grams}>{item.quality}</Text>
-                </Text>
+                  </TouchableOpacity>
 
-                {/* Add to Cart Button */}
-                <TouchableOpacity
-                  style={styles.addToCartButton}
-                  onPress={() => {
-                    addToCart();
-                    toggleCart(index);
-                  }}>
                   <Image
-                    source={
-                      cartVisible[index]
-                        ? require('../../assets/images/Fishimage/Cart.png')
-                        : null
-                    }
-                    style={[
-                      styles.heartIcon,
-                      cartVisible[index] ? styles.cartHeart : null,
-                    ]}
-                    resizeMode="contain"
+                    source={{uri: baseurl + item.p_image}}
+                    style={styles.offerImage}
                   />
-                  <Text style={styles.addToCartText}>
-                    {cartVisible[index] ? 'Carted' : 'Add to Cart'}
+
+                  <View style={styles.offerDetails}>
+                    <Text style={styles.offerName}>{item.p_name}</Text>
+
+                    <View style={styles.Star}>
+                      <Image
+                        source={
+                          require('../../assets/images/Fishimage/star.png') // Red Heart
+                        }
+                        style={styles.starIcon}
+                        resizeMode="contain"
+                      />
+                      <Text style={styles.ratingText}>4.5</Text>
+                    </View>
+                  </View>
+                  <Text style={styles.offerPrice}>
+                    ₹{item.p_discount_price} /{' '}
+                    <Text style={styles.grams}>{item.p_stocks}gms/Kg</Text>
                   </Text>
+
+                  {/* Add to Cart Button */}
+                  <TouchableOpacity
+                    style={styles.addToCartButton}
+                    onPress={() => {
+                      addToCart();
+                      toggleCart(index);
+                    }}>
+                    <Image
+                      source={
+                        cartVisible[index]
+                          ? require('../../assets/images/Fishimage/Cart.png')
+                          : null
+                      }
+                      style={[
+                        styles.heartIcon,
+                        cartVisible[index] ? styles.cartHeart : null,
+                      ]}
+                      resizeMode="contain"
+                    />
+                    <Text style={styles.addToCartText}>
+                      {cartVisible[index] ? 'Carted' : 'Add to Cart'}
+                    </Text>
+                  </TouchableOpacity>
                 </TouchableOpacity>
-              </TouchableOpacity>
-            ))}
+              ));
+            })}
           </ScrollView>
         </View>
       </ScrollView>

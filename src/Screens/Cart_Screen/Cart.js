@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import {useNavigation} from '@react-navigation/core';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -11,45 +12,83 @@ import {
   FlatList,
 } from 'react-native';
 
-
 const Cart = () => {
-
+  const navigation = useNavigation();
 
   const [cartItems, setCartItems] = useState([
-    { id: '1', name: 'Kerala Prawns', price: 350, image: 'https://i.imgur.com/nVQzl1Z.jpg', quantity: 5, deliveryTitlefee: 40 },
-    { id: '2', name: 'Fresh Salmon', price: 400, image: 'https://i.imgur.com/nVQzl1Z.jpg', quantity: 14, deliveryTitlefee: 40 },
-    { id: '3', name: 'King Crab', price: 500, image: 'https://i.imgur.com/nVQzl1Z.jpg', quantity: 12, deliveryTitlefee: 40 },
-    { id: '4', name: 'Tuna Fish', price: 450, image: 'https://i.imgur.com/nVQzl1Z.jpg', quantity: 1, deliveryTitlefee: 0 },
+    {
+      id: '1',
+      name: 'Kerala Prawns',
+      price: 350,
+      image: 'https://i.imgur.com/nVQzl1Z.jpg',
+      quantity: 5,
+      deliveryTitlefee: 40,
+    },
+    {
+      id: '2',
+      name: 'Fresh Salmon',
+      price: 400,
+      image: 'https://i.imgur.com/nVQzl1Z.jpg',
+      quantity: 14,
+      deliveryTitlefee: 40,
+    },
+    {
+      id: '3',
+      name: 'King Crab',
+      price: 500,
+      image: 'https://i.imgur.com/nVQzl1Z.jpg',
+      quantity: 12,
+      deliveryTitlefee: 40,
+    },
+    {
+      id: '4',
+      name: 'Tuna Fish',
+      price: 450,
+      image: 'https://i.imgur.com/nVQzl1Z.jpg',
+      quantity: 1,
+      deliveryTitlefee: 0,
+    },
   ]);
-
 
   // Function to update quantity
   const updateQuantity = (id, action) => {
-    setCartItems((prevItems) =>
-      prevItems.map((item) =>
+    setCartItems(prevItems =>
+      prevItems.map(item =>
         item.id === id
           ? {
-            ...item,
-            quantity: action === 'increase' ? item.quantity + 1 : Math.max(1, item.quantity - 1),
-          }
-          : item
-      )
+              ...item,
+              quantity:
+                action === 'increase'
+                  ? item.quantity + 1
+                  : Math.max(1, item.quantity - 1),
+            }
+          : item,
+      ),
     );
   };
 
   // Total calculations
-  const totalItemPrice = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const totalDeliveryFee = cartItems.reduce((acc, item) => acc + item.deliveryTitlefee, 0);
+  const totalItemPrice = cartItems.reduce(
+    (acc, item) => acc + item.price * item.quantity,
+    0,
+  );
+  const totalDeliveryFee = cartItems.reduce(
+    (acc, item) => acc + item.deliveryTitlefee,
+    0,
+  );
   const grandTotal = totalItemPrice + totalDeliveryFee;
 
   // Render cart items
-  const renderItem = ({ item }) => {
+  const renderItem = ({item}) => {
     const totalPrice = item.price * item.quantity;
 
     return (
       <View style={styles.itemContainer}>
-      
-        <Image source={{ uri: item.image }} style={styles.itemImage} resizeMode="cover" />
+        <Image
+          source={{uri: item.image}}
+          style={styles.itemImage}
+          resizeMode="cover"
+        />
 
         <View style={styles.itemDetailsContainer}>
           <Text style={styles.itemName}>{item.name}</Text>
@@ -60,7 +99,8 @@ const Cart = () => {
           </View>
 
           <Text style={styles.itemDescription} numberOfLines={2}>
-            Fresh and high-quality seafood sourced directly from the best suppliers.
+            Fresh and high-quality seafood sourced directly from the best
+            suppliers.
           </Text>
 
           <View style={styles.deliveryInfoRow}>
@@ -70,13 +110,17 @@ const Cart = () => {
           </View>
 
           <View style={styles.quantityContainer}>
-            <TouchableOpacity style={styles.quantityButton} onPress={() => updateQuantity(item.id, 'decrease')}>
+            <TouchableOpacity
+              style={styles.quantityButton}
+              onPress={() => updateQuantity(item.id, 'decrease')}>
               <Text style={styles.quantityButtonText}>−</Text>
             </TouchableOpacity>
 
             <Text style={styles.quantityText}>{item.quantity}</Text>
 
-            <TouchableOpacity style={styles.quantityButton} onPress={() => updateQuantity(item.id, 'increase')}>
+            <TouchableOpacity
+              style={styles.quantityButton}
+              onPress={() => updateQuantity(item.id, 'increase')}>
               <Text style={styles.quantityButtonText}>+</Text>
             </TouchableOpacity>
 
@@ -87,14 +131,15 @@ const Cart = () => {
     );
   };
 
-
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
 
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}>
           <Image
             source={require('../../assets/images/Fishimage/Back.png')}
             style={styles.backButton}
@@ -120,7 +165,9 @@ const Cart = () => {
               <Text style={styles.addressText}>8502 Preston Rd.</Text>
               <Text style={styles.addressText}>Inglewood, Maine 98380</Text>
               <Text style={styles.addressText}>Pin - 684208</Text>
-              <Text style={styles.addressText}>Mobile Number +91 7826 598110</Text>
+              <Text style={styles.addressText}>
+                Mobile Number +91 7826 598110
+              </Text>
             </View>
             <TouchableOpacity style={styles.changeButton}>
               <Text style={styles.changeButtonText}>Change</Text>
@@ -130,12 +177,14 @@ const Cart = () => {
 
         {/* Order Items */}
         <View style={styles.orderItemsContainer}>
-          <FlatList data={cartItems} keyExtractor={(item) => item.id}
-            renderItem={renderItem} scrollEnabled={false}
-            ItemSeparatorComponent={() => <View style={{ height: 15 }} />} // Adds space between items
-            
-            style={{marginTop:30}}
-            />
+          <FlatList
+            data={cartItems}
+            keyExtractor={item => item.id}
+            renderItem={renderItem}
+            scrollEnabled={false}
+            ItemSeparatorComponent={() => <View style={{height: 15}} />} // Adds space between items
+            style={{marginTop: 30}}
+          />
         </View>
         {/* Price Summary */}
         <View style={styles.priceSummaryContainer}>
@@ -161,7 +210,6 @@ const Cart = () => {
         <TouchableOpacity style={styles.continueButton}>
           <Text style={styles.continueButtonText}>Continue</Text>
         </TouchableOpacity>
-
       </View>
     </SafeAreaView>
   );
@@ -171,7 +219,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f8f8f8',
-    marginTop: 20
+    marginTop: 20,
   },
   header: {
     flexDirection: 'row',
@@ -233,8 +281,8 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   deliveryInfoRow: {
-    marginTop:10,
-    marginBottom:10,
+    marginTop: 10,
+    marginBottom: 10,
 
     flexDirection: 'row',
     justifyContent: 'center',
@@ -242,8 +290,7 @@ const styles = StyleSheet.create({
 
     paddingVertical: 2,
     borderRadius: 3,
-    backgroundColor: "#0C8CE91F",
-
+    backgroundColor: '#0C8CE91F',
   },
 
   originalPriceText: {
@@ -274,15 +321,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 4,
     backgroundColor: '#0C8CE908',
-
   },
   changeButtonText: {
     color: '#0099ff',
     fontWeight: '600',
   },
   orderItemsContainer: {
-
-   
     padding: 16,
   },
   itemContainer: {
@@ -290,8 +334,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     backgroundColor: 'white',
     padding: 10,
-    borderRadius: 8
-   
+    borderRadius: 8,
   },
   itemImage: {
     width: 150,
@@ -342,7 +385,7 @@ const styles = StyleSheet.create({
     color: 'black',
     marginTop: 4,
   },
- 
+
   deliveryTimeText: {
     fontSize: 12,
     color: '#0C8CE9',
@@ -360,12 +403,8 @@ const styles = StyleSheet.create({
   quantityContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-
   },
   quantityButton: {
-
-   
-
     justifyContent: 'center',
     alignItems: 'center',
   },
