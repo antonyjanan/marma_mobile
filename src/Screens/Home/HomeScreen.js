@@ -319,7 +319,9 @@ const HomeScreen = () => {
                 <TouchableOpacity
                   key={index}
                   style={styles.offerItem}
-                  onPress={() => navigation.navigate('Product_view_Screen')}>
+                  onPress={() =>
+                    navigation.navigate('Product_view_Screen', item.p_id)
+                  }>
                   {/* Favorite Button */}
                   <TouchableOpacity
                     style={styles.favoriteIcon}

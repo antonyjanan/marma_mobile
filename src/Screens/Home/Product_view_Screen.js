@@ -1,5 +1,5 @@
 import {useNavigation} from '@react-navigation/core';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -42,15 +42,19 @@ const offerItems = [
   },
 ];
 const {width, height} = Dimensions.get('window');
-const Product_view_Screen = () => {
+const Product_view_Screen = ({route}) => {
   const navigation = useNavigation();
+  const params = route.params || '';
 
   const [quantity, setQuantity] = useState(1);
-  const pricePerUnit = 350; // ₹350 per 500gm
-  const totalPrice = quantity * pricePerUnit; // Dynamic total price
-
   const [isReadMoreVisible, setIsReadMoreVisible] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [productView, setProductview] = useState([]);
+  const [similar, setSimilar] = useState([]);
+
+  useEffect(() => {
+    fetchProduct();
+  }, []);
 
   const incrementQuantity = () => setQuantity(quantity + 1);
   const decrementQuantity = () => {
@@ -74,7 +78,34 @@ const Product_view_Screen = () => {
   const handleSeeAll = () => {
     console.log('See all trending items pressed');
   };
+  const fetchProduct = () => {
+    fetch('https://healthyfresh.lunarsenterprises.com/fishapp/view-product', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({p_id: params}),
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data, 'listing');
 
+        if (data.result) {
+          setProductview(data?.list || []);
+          setSimilar(data.similar || []);
+        } else {
+          console.log('Error fetching subcategories:', data.message);
+          setProductview([]);
+        }
+      })
+      .catch(error => {
+        console.log('Subcategory API error:', error);
+        setProductview([]);
+      });
+  };
+  const pricePerUnit = productView[0]?.p_orgianl_price; // ₹350 per 500gm
+  const totalPrice = quantity * pricePerUnit; // Dynamic total price
+  const baseurl = 'https://healthyfresh.lunarsenterprises.com';
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -86,17 +117,17 @@ const Product_view_Screen = () => {
             autoplay={true}
             loop={true}>
             <Image
+              source={{uri: baseurl + productView[0]?.p_image}}
+              style={styles.productImage}
+            />
+            {/* <Image
               source={require('../../assets/images/Fishimage/splashimage.png')}
               style={styles.productImage}
             />
             <Image
               source={require('../../assets/images/Fishimage/splashimage.png')}
               style={styles.productImage}
-            />
-            <Image
-              source={require('../../assets/images/Fishimage/splashimage.png')}
-              style={styles.productImage}
-            />
+            /> */}
           </Swiper>
 
           {/* Back Button */}
@@ -131,7 +162,7 @@ const Product_view_Screen = () => {
           <View style={styles.titleContainer}>
             <View style={styles.titleRow}>
               <Text style={styles.productTitle}>
-                Kerala Prawns <Text style={styles.emojiText}></Text>
+                {productView[0]?.p_name} <Text style={styles.emojiText}></Text>
               </Text>
               <View style={styles.badgeContainer}>
                 <Text style={styles.badgeText}>Best Seller</Text>
@@ -139,7 +170,10 @@ const Product_view_Screen = () => {
             </View>
             <Text style={styles.priceText}>
               ₹ {pricePerUnit}
-              <Text style={styles.priceTextgm}> / 500gm</Text>
+              <Text style={styles.priceTextgm}>
+                {' '}
+                / {productView[0]?.p_stocks} gm
+              </Text>
             </Text>
           </View>
 
@@ -180,11 +214,7 @@ const Product_view_Screen = () => {
             <Text
               style={styles.descriptionText}
               numberOfLines={isReadMoreVisible ? null : 3}>
-              Kerala prawns, known for their rich flavor and tender texture, are
-              a popular seafood delicacy in Kerala's coastal cuisine. They are
-              often prepared with a blend of coconut, curry leaves, and aromatic
-              spices, creating iconic dishes like Chemmeen Curry (prawn curry),
-              Chemme.
+              {productView[0]?.p_description}
             </Text>
             <TouchableOpacity onPress={toggleReadMore}>
               <Text style={styles.readMoreText}>
@@ -227,35 +257,40 @@ const Product_view_Screen = () => {
             horizontal
             showsHorizontalScrollIndicator={false}
             style={styles.scrollView}>
-            {offerItems.map((item, index) => (
+            {similar?.map((item, index) => (
               <TouchableOpacity
                 key={index}
                 style={styles.offerItem}
-                onPress={() => navigation.navigate('Product_view_Screen')}>
+                onPress={() =>
+                  navigation.navigate('Product_view_Screen', item.p_id)
+                }>
                 {/* Favorite Button */}
                 {/* <TouchableOpacity
-                                                     style={styles.favoriteIcon}
-                                                     onPress={() => toggleFavorite(index)}
-                                                   >
-                                                     <Image
-                                                       source={
-                                                         favorites[index]
-                                                           ? require('../../../assets/images/Fishimage/favourtieheart.png') 
-                                                           : require('../../../assets/images/Fishimage/unfavourtie.png') 
-                                                       }
-                                                       style={[
-                                                         styles.heartIcon,
-                                                         favorites[index] ? styles.favoriteHeart : styles.unfavoriteHeart
-                                                       ]}
-                                                       resizeMode="contain"
-                                                     />
-                                   
-                                                   </TouchableOpacity> */}
+                  style={styles.favoriteIcon}
+                  onPress={() => toggleFavorite(index)}>
+                  <Image
+                    source={
+                      favorites[index]
+                        ? require('../../../assets/images/Fishimage/favourtieheart.png')
+                        : require('../../../assets/images/Fishimage/unfavourtie.png')
+                    }
+                    style={[
+                      styles.heartIcon,
+                      favorites[index]
+                        ? styles.favoriteHeart
+                        : styles.unfavoriteHeart,
+                    ]}
+                    resizeMode="contain"
+                  />
+                </TouchableOpacity> */}
 
-                <Image source={item.image} style={styles.offerImage} />
+                <Image
+                  source={{uri: baseurl + item.p_image}}
+                  style={styles.offerImage}
+                />
 
                 <View style={styles.offerDetails}>
-                  <Text style={styles.offerName}>{item.name}</Text>
+                  <Text style={styles.offerName}>{item.p_name}</Text>
 
                   <View style={styles.Star}>
                     <Image
@@ -265,12 +300,15 @@ const Product_view_Screen = () => {
                       style={styles.starIcon}
                       resizeMode="contain"
                     />
-                    <Text style={styles.ratingText}>{item.rating}</Text>
+                    <Text style={styles.ratingText}>4.5</Text>
                   </View>
                 </View>
+                <Text style={{textDecorationLine: 'line-through'}}>
+                  ₹ {item.p_orgianl_price}
+                </Text>
                 <Text style={styles.offerPrice}>
-                  {item.price} /{' '}
-                  <Text style={styles.grams}>{item.quality}</Text>
+                  ₹ {item.p_discount_price} /{' '}
+                  <Text style={styles.grams}>{item.p_stocks} gm</Text>
                 </Text>
               </TouchableOpacity>
             ))}

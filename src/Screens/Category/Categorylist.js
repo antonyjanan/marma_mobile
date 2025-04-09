@@ -83,10 +83,10 @@ const Categorylist = () => {
     })
       .then(response => response.json())
       .then(data => {
-        // console.log(data, 'dtaasdss');
+        console.log(data, 'dtaasdss');
 
         if (data.result) {
-          setSubcategories(data.list || []);
+          setSubcategories(data.data || []);
         } else {
           console.log('Error fetching subcategories:', data.message);
           setSubcategories([]);
@@ -97,13 +97,18 @@ const Categorylist = () => {
         setSubcategories([]);
       });
   };
-  const fetchProduct = categoryId => {
+  const fetchProduct = (categoryId, subitem) => {
+    console.log(categoryId, subitem, 'subitems');
+
     fetch('https://healthyfresh.lunarsenterprises.com/fishapp/list/products', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({c_id: categoryId ? categoryId : category[0]?.c_id}),
+      body: JSON.stringify({
+        c_id: categoryId ? categoryId : category[0]?.c_id,
+        sub_category_id: subitem ? subitem : '',
+      }),
     })
       .then(response => response.json())
       .then(data => {
@@ -225,10 +230,12 @@ const Categorylist = () => {
                   <View style={styles.subcategoriesContainer}>
                     {subcategories.map(sub => (
                       <TouchableOpacity
-                        key={sub.id}
+                        key={sub.sc_id}
                         style={styles.subcategoryItem}
-                        onPress={() => fetchProduct(sub.sub_category_id)}>
-                        <Text style={styles.subcategoryText}>{sub.name}</Text>
+                        onPress={() => fetchProduct(category.c_id, sub.sc_id)}>
+                        <Text style={styles.subcategoryText}>
+                          {sub.sc_name}
+                        </Text>
                       </TouchableOpacity>
                     ))}
                   </View>
