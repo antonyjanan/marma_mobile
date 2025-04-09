@@ -1,18 +1,19 @@
-import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
-  StyleSheet, 
+import React, {useState} from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
   SafeAreaView,
   Image,
   KeyboardAvoidingView,
   Platform,
-  ScrollView
+  ScrollView,
 } from 'react-native';
-import { Formik } from 'formik';
+import {Formik} from 'formik';
 import * as Yup from 'yup';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Social Login Icons (you'll need to import these)
 const GoogleIcon = require('../../assets/images/Fishimage/Google.png');
@@ -36,37 +37,54 @@ const SignupSchema = Yup.object().shape({
     .min(8, 'Must be at least 8 characters')
     .matches(
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-      'Password must include uppercase, lowercase, number, and special character'
-    )
+      'Password must include uppercase, lowercase, number, and special character',
+    ),
 });
 
-const Registeration = ({ navigation }) => {
+const Registeration = ({navigation}) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
-  const handleSignup = (values) => {
-    // Implement signup logic
-    console.log('Signup Submitted', values);
-    navigation.navigate("Login")
+  const handleSignup = values => {
+    fetch('https://healthyfresh.lunarsenterprises.com/fishapp/user/register', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: values.name,
+        email: values.email,
+        password: values.password,
+      }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.result) {
+          console.log(data, 'data in login');
+          AsyncStorage.setItem('user_token', data.user_token);
+          navigation.navigate('Login');
+        } else {
+          Toast.show(data.message);
+        }
+      })
+      .catch(error => {
+        console.log(error, 'error');
+      });
   };
 
-  const handleSocialSignup = (platform) => {
+  const handleSocialSignup = platform => {
     // Implement social signup logic
     console.log(`Signing up with ${platform}`);
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container}
-      >
-      
-        <ScrollView 
+        style={styles.container}>
+        <ScrollView
           contentContainerStyle={styles.scrollContainer}
-          keyboardShouldPersistTaps="handled"
-        >
-        
-
+          keyboardShouldPersistTaps="handled">
           {/* Title and Subtitle */}
           <View style={styles.headerContainer}>
             <Text style={styles.titleText}>Create an account</Text>
@@ -76,27 +94,25 @@ const Registeration = ({ navigation }) => {
           </View>
 
           <Formik
-            initialValues={{ name: '', email: '', password: '' }}
+            initialValues={{name: '', email: '', password: ''}}
             validationSchema={SignupSchema}
-            onSubmit={handleSignup}
-          >
-            {({ 
-              handleChange, 
-              handleBlur, 
-              handleSubmit, 
-              values, 
-              errors, 
-              touched 
+            onSubmit={handleSignup}>
+            {({
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              values,
+              errors,
+              touched,
             }) => (
               <View style={styles.formContainer}>
                 {/* Name Input */}
                 <View style={styles.inputContainer}>
                   <View style={styles.iconInputContainer}>
-                
                     <TextInput
                       style={[
-                        styles.input, 
-                        touched.name && errors.name && styles.inputError
+                        styles.input,
+                        touched.name && errors.name && styles.inputError,
                       ]}
                       placeholder="Enter your name"
                       placeholderTextColor="#888"
@@ -113,11 +129,10 @@ const Registeration = ({ navigation }) => {
                 {/* Email Input */}
                 <View style={styles.inputContainer}>
                   <View style={styles.iconInputContainer}>
-                  
                     <TextInput
                       style={[
-                        styles.input, 
-                        touched.email && errors.email && styles.inputError
+                        styles.input,
+                        touched.email && errors.email && styles.inputError,
                       ]}
                       placeholder="Enter your email"
                       placeholderTextColor="#888"
@@ -136,11 +151,12 @@ const Registeration = ({ navigation }) => {
                 {/* Password Input */}
                 <View style={styles.inputContainer}>
                   <View style={styles.iconInputContainer}>
-             
                     <TextInput
                       style={[
-                        styles.input, 
-                        touched.password && errors.password && styles.inputError
+                        styles.input,
+                        touched.password &&
+                          errors.password &&
+                          styles.inputError,
                       ]}
                       placeholder="Enter your password"
                       placeholderTextColor="#888"
@@ -149,20 +165,17 @@ const Registeration = ({ navigation }) => {
                       onBlur={handleBlur('password')}
                       value={values.password}
                     />
-                    <TouchableOpacity 
+                    <TouchableOpacity
                       onPress={() => setIsPasswordVisible(!isPasswordVisible)}
-                      style={styles.eyeIcon}
-                    >
-                      <Image 
+                      style={styles.eyeIcon}>
+                      <Image
                         source={
-                          isPasswordVisible 
+                          isPasswordVisible
                             ? require('../../assets/images/Fishimage/Eye_open.png')
                             : require('../../assets/images/Fishimage/Hide.png')
-                        } 
-                        style={styles.eyeIconImage} 
-                        resizeMode='contain'
-
-                        
+                        }
+                        style={styles.eyeIconImage}
+                        resizeMode="contain"
                       />
                     </TouchableOpacity>
                   </View>
@@ -171,13 +184,10 @@ const Registeration = ({ navigation }) => {
                   )}
                 </View>
 
-               
-
                 {/* Signup Button */}
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.signupButton}
-                  onPress={handleSubmit}
-                >
+                  onPress={handleSubmit}>
                   <Text style={styles.signupButtonText}>Sign Up</Text>
                 </TouchableOpacity>
 
@@ -190,32 +200,28 @@ const Registeration = ({ navigation }) => {
 
                 {/* Social Signup */}
                 <View style={styles.socialContainer}>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={styles.socialButton}
-                    onPress={() => handleSocialSignup('Apple')}
-                  >
+                    onPress={() => handleSocialSignup('Apple')}>
                     <Image source={AppleIcon} style={styles.socialIcon} />
                   </TouchableOpacity>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={styles.socialButton}
-                    onPress={() => handleSocialSignup('Google')}
-                  >
+                    onPress={() => handleSocialSignup('Google')}>
                     <Image source={GoogleIcon} style={styles.socialIcon} />
                   </TouchableOpacity>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={styles.socialButton}
-                    onPress={() => handleSocialSignup('Facebook')}
-                  >
+                    onPress={() => handleSocialSignup('Facebook')}>
                     <Image source={FacebookIcon} style={styles.socialIcon} />
                   </TouchableOpacity>
                 </View>
 
                 {/* Login Link */}
                 <View style={styles.loginContainer}>
-                  <Text style={styles.loginText}>
-                    Already have an account? 
-                  </Text>
-                  <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                  <Text style={styles.loginText}>Already have an account?</Text>
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate('Login')}>
                     <Text style={styles.loginLinkText}>Log in</Text>
                   </TouchableOpacity>
                 </View>

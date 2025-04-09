@@ -527,11 +527,9 @@
 
 // export default Routes;
 
-
-
 import * as React from 'react';
 
-import { createStackNavigator } from '@react-navigation/stack';
+import {createStackNavigator} from '@react-navigation/stack';
 
 import Splashscreen from '../Screens/Login/Splashscreen';
 import Login from '../Screens/Login/Login';
@@ -545,65 +543,124 @@ import Myorder_Tracking from '../Screens/Profile_Screen/My_Order/Myorder_Trackin
 import Categorylist from '../Screens/Category/Categorylist';
 import Cart from '../Screens/Cart_Screen/Cart';
 import ForgotPassword from '../Screens/ForgotPassword';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Stack = createStackNavigator();
+const AuthStack = createStackNavigator();
+//..................AuthStack....................//
+
+function AuthStackScreen({setIsLoggedIn}) {
+  return (
+    <AuthStack.Navigator initialRouteName="Login">
+      <AuthStack.Screen
+        name="Login"
+        component={props => <Login {...props} setIsLoggedIn={setIsLoggedIn} />}
+        options={{headerShown: false}}
+      />
+
+      <AuthStack.Screen
+        name="Splashscreen"
+        component={props => (
+          <Splashscreen {...props} setIsLoggedIn={setIsLoggedIn} />
+        )}
+        options={{headerShown: false}}
+      />
+      <AuthStack.Screen
+        name="Registeration"
+        component={Registeration}
+        options={{headerShown: false}}
+      />
+      <AuthStack.Screen
+        name="ForgotPassword"
+        component={ForgotPassword}
+        options={{headerShown: false}}
+      />
+    </AuthStack.Navigator>
+  );
+}
 
 function Routes() {
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const [initialRoute, setInitialRoute] = React.useState('Splashscreen');
+
+  React.useEffect(() => {
+    const checkToken = async () => {
+      try {
+        const token = await AsyncStorage.getItem('user_token');
+
+        if (token) {
+          setIsLoggedIn(true);
+          setInitialRoute('Home');
+        } else {
+          setIsLoggedIn(false);
+          setInitialRoute('Splashscreen');
+        }
+      } catch (error) {
+        console.error('Failed to load token.', error);
+      }
+    };
+
+    checkToken();
+  }, []);
   return (
+    <>
+      {isLoggedIn ? (
+        <Stack.Navigator initialRouteName="BottomtabHome">
+          <Stack.Screen
+            name="Splashscreen"
+            component={Splashscreen}
+            options={{headerShown: false}}
+          />
 
-    <Stack.Navigator initialRouteName="Login">
-      <Stack.Screen name="Splashscreen" component={Splashscreen}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen name="Login" component={Login}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen name="ForgotPassword" component={ForgotPassword}
-        options={{ headerShown: false }}
-      />
+          <Stack.Screen
+            name="Favorites"
+            component={Favorites}
+            options={{headerShown: false}}
+          />
 
-      <Stack.Screen name="Registeration" component={Registeration}
-        options={{ headerShown: false }}
-      />
+          <Stack.Screen
+            name="Notification"
+            component={Notification}
+            options={{headerShown: false}}
+          />
 
-      <Stack.Screen name="Favorites" component={Favorites}
-        options={{ headerShown: false }}
-      />
+          <Stack.Screen
+            name="Cart"
+            component={Cart}
+            options={{headerShown: false}}
+          />
 
-      <Stack.Screen name="Notification" component={Notification}
-        options={{ headerShown: false }}
-      />
-       {/* <Stack.Screen name="Category" component={Categorylist}
-        options={{ headerShown: false }}
-      /> */}
+          {/* //------------------------PRoduct Section---------- */}
 
-<Stack.Screen name="Cart" component={Cart}
-        options={{ headerShown: false }}
-      />
+          <Stack.Screen
+            name="BottomtabHome"
+            component={BottomtabHome}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
+            name="Product_view_Screen"
+            component={Product_view_Screen}
+            options={{headerShown: false}}
+          />
 
-      {/* //------------------------PRoduct Section---------- */}
+          {/* //------------------------Profile---------- */}
 
-      <Stack.Screen name="BottomtabHome" component={BottomtabHome}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen name="Product_view_Screen" component={Product_view_Screen}
-        options={{ headerShown: false }}
-      />
-
-      {/* //------------------------Profile---------- */}
-
-      <Stack.Screen name="My_Order" component={My_Order}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen name="Myorder_Tracking" component={Myorder_Tracking}
-        options={{ headerShown: false }}
-      />
-
-    </Stack.Navigator>
-
+          <Stack.Screen
+            name="My_Order"
+            component={My_Order}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
+            name="Myorder_Tracking"
+            component={Myorder_Tracking}
+            options={{headerShown: false}}
+          />
+        </Stack.Navigator>
+      ) : (
+        <AuthStackScreen setIsLoggedIn={setIsLoggedIn} />
+      )}
+    </>
   );
 }
 
 export default Routes;
-

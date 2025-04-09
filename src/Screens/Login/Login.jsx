@@ -1,7 +1,4 @@
-
-
-
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -11,22 +8,19 @@ import {
   SafeAreaView,
   Image,
   KeyboardAvoidingView,
-  Platform
+  Platform,
 } from 'react-native';
-import { Formik } from 'formik';
+import {Formik} from 'formik';
 import * as Yup from 'yup';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
+import Toast from 'react-native-toast-message';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Social Login Icons (you'll need to import these)
 const GoogleIcon = require('../../assets/images/Fishimage/Google.png');
 const AppleIcon = require('../../assets/images/Fishimage/Apple.png');
 const FacebookIcon = require('../../assets/images/Fishimage/Facebook.png');
 const tickImage = require('../../assets/images/Fishimage/Tick.png');
 const untickImage = require('../../assets/images/Fishimage/Untick.png');
-
-
-
-
 
 // Validation Schema
 const LoginSchema = Yup.object().shape({
@@ -39,35 +33,52 @@ const LoginSchema = Yup.object().shape({
     .min(8, 'Password must be at least 8 characters')
     .matches(
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-      'Password must include uppercase, lowercase, number, and special character'
-    )
+      'Password must include uppercase, lowercase, number, and special character',
+    ),
 });
 
 const Login = () => {
+  const navigation = useNavigation();
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
 
-  const handleSocialLogin = (platform) => {
-    // Implement social login logic
+  const handleSocialLogin = platform => {
     console.log(`Logging in with ${platform}`);
   };
-  const navigation = useNavigation();
-  const handleLogin = (values,navigation) => {
 
-    navigation.navigate('BottomtabHome');
-
-
-    console.log('Login Submitted', values);
+  const handleLogin = async values => {
+    fetch('https://healthyfresh.lunarsenterprises.com/fishapp/login', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: values.email,
+        password: values.password,
+        role: 'user',
+      }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.result) {
+          AsyncStorage.setItem('user_token', data.user_token);
+          navigation.navigate('BottomtabHome');
+        } else {
+          Toast.show(data.message);
+        }
+      })
+      .catch(error => {
+        console.log(error, 'error');
+      });
   };
 
   return (
     <SafeAreaView style={styles.container}>
-
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container}
-      >
+        style={styles.container}>
         {/* App Title */}
         {/* <Text style={styles.logoText}>
           <Text style={styles.healthyText}>Healthy</Text>
@@ -80,9 +91,9 @@ const Login = () => {
         />
 
         <Formik
-          initialValues={{ email: '', password: '' }}
+          initialValues={{email: '', password: ''}}
           validationSchema={LoginSchema}
-          onSubmit={(values) => handleLogin(values, navigation)} // Pass navigation to handleLogin
+          onSubmit={values => handleLogin(values)} // Pass navigation to handleLogin
         >
           {({
             handleChange,
@@ -90,7 +101,7 @@ const Login = () => {
             handleSubmit,
             values,
             errors,
-            touched
+            touched,
           }) => (
             <View style={styles.formContainer}>
               {/* Email Input */}
@@ -101,7 +112,7 @@ const Login = () => {
                 <TextInput
                   style={[
                     styles.input,
-                    touched.email && errors.email && styles.inputError
+                    touched.email && errors.email && styles.inputError,
                   ]}
                   placeholder="Email"
                   placeholderTextColor="#888"
@@ -126,7 +137,7 @@ const Login = () => {
                     style={[
                       styles.input,
                       styles.passwordInput,
-                      touched.password && errors.password && styles.inputError
+                      touched.password && errors.password && styles.inputError,
                     ]}
                     placeholder="Password"
                     placeholderTextColor="#888"
@@ -137,8 +148,7 @@ const Login = () => {
                   />
                   <TouchableOpacity
                     onPress={() => setIsPasswordVisible(!isPasswordVisible)}
-                    style={styles.eyeIcon}
-                  >
+                    style={styles.eyeIcon}>
                     <Text>{isPasswordVisible ? '👁️' : '👁️‍🗨️'}</Text>
                   </TouchableOpacity>
                 </View>
@@ -151,16 +161,16 @@ const Login = () => {
               <View style={styles.rememberedContainer}>
                 <TouchableOpacity
                   style={styles.checkboxContainer}
-                  onPress={() => setRememberMe(!rememberMe)}
-                >
+                  onPress={() => setRememberMe(!rememberMe)}>
                   <Image
                     source={rememberMe ? tickImage : untickImage}
                     style={styles.checkbox}
-                    resizeMode='contain'
+                    resizeMode="contain"
                   />
                   <Text style={styles.rememberedText}>Remember me</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={()=>navigation.navigate("ForgotPassword")}>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('ForgotPassword')}>
                   <Text style={styles.forgotPasswordText}>
                     Forgot Password ?
                   </Text>
@@ -170,8 +180,7 @@ const Login = () => {
               {/* Login Button */}
               <TouchableOpacity
                 style={styles.loginButton}
-                onPress={handleSubmit}
-              >
+                onPress={handleSubmit}>
                 <Text style={styles.loginButtonText}>Log In</Text>
               </TouchableOpacity>
 
@@ -186,20 +195,17 @@ const Login = () => {
               <View style={styles.socialLoginContainer}>
                 <TouchableOpacity
                   style={styles.socialButton}
-                  onPress={() => handleSocialLogin('Google')}
-                >
+                  onPress={() => handleSocialLogin('Google')}>
                   <Image source={GoogleIcon} style={styles.socialIcon} />
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.socialButton}
-                  onPress={() => handleSocialLogin('Apple')}
-                >
+                  onPress={() => handleSocialLogin('Apple')}>
                   <Image source={AppleIcon} style={styles.socialIcon} />
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.socialButton}
-                  onPress={() => handleSocialLogin('Facebook')}
-                >
+                  onPress={() => handleSocialLogin('Facebook')}>
                   <Image source={FacebookIcon} style={styles.socialIcon} />
                 </TouchableOpacity>
               </View>
@@ -209,7 +215,8 @@ const Login = () => {
                 <Text style={styles.signupText}>
                   If you don't have an account yet?
                 </Text>
-                <TouchableOpacity onPress={() => navigation.navigate('Registeration')}>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('Registeration')}>
                   <Text style={styles.signupLinkText}>SignUp</Text>
                 </TouchableOpacity>
               </View>
@@ -255,15 +262,11 @@ const styles = StyleSheet.create({
 
   inputnamemain: {
     marginBottom: 10,
-
   },
   inputnames: {
     color: '#1F1F1F',
     fontSize: 14,
     fontWeight: 500,
-
-
-
   },
 
   input: {
@@ -307,18 +310,15 @@ const styles = StyleSheet.create({
     height: 20,
 
     marginRight: 10,
-
   },
   checkboxChecked: {
     backgroundColor: '#292D32',
-
   },
   rememberedText: {
     color: '#1F1F1F',
   },
   forgotPasswordText: {
     color: '#1F1F1F',
-
   },
   loginButton: {
     backgroundColor: '#0C8CE9',
@@ -355,9 +355,6 @@ const styles = StyleSheet.create({
   socialButton: {
     marginHorizontal: 1,
     padding: 10,
-
-
-
   },
   socialIcon: {
     width: 42,
@@ -370,7 +367,7 @@ const styles = StyleSheet.create({
   signupText: {
     color: '#1F1F1F',
     fontSize: 14,
-    fontWeight: 400
+    fontWeight: 400,
   },
   signupLinkText: {
     color: '#1F1F1F',
