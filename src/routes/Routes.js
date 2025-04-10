@@ -544,6 +544,10 @@ import Categorylist from '../Screens/Category/Categorylist';
 import Cart from '../Screens/Cart_Screen/Cart';
 import ForgotPassword from '../Screens/ForgotPassword';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import ProfileScreen from '../Screens/Profile_Screen/ProfileScreen';
+import {Appstrings} from '../Contants/Appstrings';
+import AddressScreen from '../Screens/AddressScreen/AddressScreen';
+import AddAddress from '../Screens/AddressScreen/AddAddress';
 
 const Stack = createStackNavigator();
 const AuthStack = createStackNavigator();
@@ -586,7 +590,8 @@ function Routes() {
   React.useEffect(() => {
     const checkToken = async () => {
       try {
-        const token = await AsyncStorage.getItem('user_token');
+        const token = await AsyncStorage.getItem(Appstrings.USER_TOCKEN);
+        console.log(token, 'token');
 
         if (token) {
           setIsLoggedIn(true);
@@ -606,6 +611,39 @@ function Routes() {
     <>
       {isLoggedIn ? (
         <Stack.Navigator initialRouteName="BottomtabHome">
+          {/* //------------------------PRoduct Section---------- */}
+
+          <Stack.Screen
+            name="BottomtabHome"
+            component={BottomtabHome}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
+            name="Product_view_Screen"
+            component={Product_view_Screen}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
+            name="ProfileScreen"
+            component={ProfileScreen}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
+            name="Address"
+            component={AddressScreen}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
+            name="AddAddress"
+            component={AddAddress}
+            options={{headerShown: false}}
+          />
+
+          <Stack.Screen
+            name="Login"
+            component={Login}
+            options={{headerShown: false}}
+          />
           <Stack.Screen
             name="Splashscreen"
             component={Splashscreen}
@@ -627,19 +665,6 @@ function Routes() {
           <Stack.Screen
             name="Cart"
             component={Cart}
-            options={{headerShown: false}}
-          />
-
-          {/* //------------------------PRoduct Section---------- */}
-
-          <Stack.Screen
-            name="BottomtabHome"
-            component={BottomtabHome}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="Product_view_Screen"
-            component={Product_view_Screen}
             options={{headerShown: false}}
           />
 

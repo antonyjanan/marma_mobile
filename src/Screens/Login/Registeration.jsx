@@ -14,6 +14,7 @@ import {
 import {Formik} from 'formik';
 import * as Yup from 'yup';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {Appstrings} from '../../Contants/Appstrings';
 
 // Social Login Icons (you'll need to import these)
 const GoogleIcon = require('../../assets/images/Fishimage/Google.png');
@@ -61,7 +62,7 @@ const Registeration = ({navigation}) => {
       .then(data => {
         if (data.result) {
           console.log(data, 'data in login');
-          AsyncStorage.setItem('user_token', data.user_token);
+          AsyncStorage.setItem(Appstrings.USER_TOCKEN, data.user_token);
           navigation.navigate('Login');
         } else {
           Toast.show(data.message);

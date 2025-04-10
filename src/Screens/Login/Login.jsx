@@ -15,6 +15,7 @@ import * as Yup from 'yup';
 import {useNavigation} from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {Appstrings} from '../../Contants/Appstrings';
 
 const GoogleIcon = require('../../assets/images/Fishimage/Google.png');
 const AppleIcon = require('../../assets/images/Fishimage/Apple.png');
@@ -62,8 +63,11 @@ const Login = () => {
     })
       .then(response => response.json())
       .then(data => {
+        console.log(data, 'data inisde te login');
+
         if (data.result) {
-          AsyncStorage.setItem('user_token', data.user_token);
+          AsyncStorage.setItem(Appstrings.USER_ID, JSON.stringify(data.u_id));
+          AsyncStorage.setItem(Appstrings.USER_TOCKEN, data.user_token);
           navigation.navigate('BottomtabHome');
         } else {
           Toast.show(data.message);

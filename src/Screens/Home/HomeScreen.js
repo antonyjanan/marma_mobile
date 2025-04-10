@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/core';
 import React, {useEffect, useState} from 'react';
 import {
@@ -15,6 +16,7 @@ import {
 } from 'react-native';
 import SwiperFlatList from 'react-native-swiper-flatlist';
 import Toast from 'react-native-toast-message';
+import {Appstrings} from '../../Contants/Appstrings';
 
 const {width, height} = Dimensions.get('window');
 const offerItems = [
@@ -139,17 +141,44 @@ const HomeScreen = () => {
     }));
   };
 
-  const addToCart = () => {
-    Toast.show({
-      type: 'success',
-      position: 'bottom',
-      text1: 'Success',
-      text2: 'Added to Cart Successfully!',
-      visibilityTime: 2000, // 2 seconds
-      autoHide: true,
-      bottomOffset: 50, // Adjust position
-    });
+  const addToCart = async (id, qa) => {
+    let user_id = await AsyncStorage.getItem(Appstrings.USER_ID);
+    let requestbody = {
+      u_id: user_id,
+      p_id: id,
+      quantity: qa,
+    };
+
+    fetch('https://healthyfresh.lunarsenterprises.com/fishapp/add/cart', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestbody),
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data, 'data added');
+
+        if (data.result) {
+          Toast.show({
+            type: 'success',
+            position: 'bottom',
+            text1: data.message,
+            // text2: 'Added to Cart Successfully!',
+            visibilityTime: 2000, // 2 seconds
+            autoHide: true,
+            bottomOffset: 50, // Adjust position
+          });
+        } else {
+          console.log(data.message, 'error in banner response');
+        }
+      })
+      .catch(error => {
+        console.log(error, 'error');
+      });
   };
+
   const getRandomBackground = () => {
     const randomIndex = Math.floor(Math.random() * banners.length);
     return banners[randomIndex].backgroundColorss;
@@ -311,11 +340,11 @@ const HomeScreen = () => {
             horizontal
             showsHorizontalScrollIndicator={false}
             style={styles.scrollView}>
-            {offers?.map((categoryObj, index) => {
+            {offers?.map(categoryObj => {
               const categoryName = Object.keys(categoryObj)[0];
               const items = categoryObj[categoryName];
 
-              return items?.map(item => (
+              return items?.map((item, index) => (
                 <TouchableOpacity
                   key={index}
                   style={styles.offerItem}
@@ -370,7 +399,7 @@ const HomeScreen = () => {
                   <TouchableOpacity
                     style={styles.addToCartButton}
                     onPress={() => {
-                      addToCart();
+                      addToCart(item.p_id, 1);
                       toggleCart(index);
                     }}>
                     <Image

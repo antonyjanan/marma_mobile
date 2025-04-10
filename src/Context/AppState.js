@@ -1,9 +1,10 @@
 // AppState.js import AsyncStorage from "@react-native-async-storage/async-storage";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { useState, createContext, useEffect } from "react";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, {useState, createContext, useEffect} from 'react';
+import {Appstrings} from '../Contants/Appstrings';
 
 export const AppContext = createContext();
-const AppState = ({ children }) => {
+const AppState = ({children}) => {
   const [appState, setAppState] = useState(/* Your initial state here */);
   const [token, setToken] = useState({});
   const [isloading, setisloading] = useState(false);
@@ -24,15 +25,15 @@ const AppState = ({ children }) => {
   }, []);
 
   const pageLoad = async () => {
-    let authtoken = await AsyncStorage.getItem("user_token");
+    let authtoken = await AsyncStorage.getItem(Appstrings.USER_TOCKEN);
 
     setToken(authtoken);
     setisloading(true);
   };
-  const updateUser = (pic) => {
-    setPropic({ pic });
+  const updateUser = pic => {
+    setPropic({pic});
   };
-  console.log("token-----", token);
+  console.log('token-----', token);
 
   return (
     //   isloading&&
@@ -54,8 +55,7 @@ const AppState = ({ children }) => {
           // procheck,setProcheck,
           // homecheck,
           // sethomecheck,
-        }}
-      >
+        }}>
         {children}
       </AppContext.Provider>
     )

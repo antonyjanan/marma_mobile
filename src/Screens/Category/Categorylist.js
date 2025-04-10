@@ -12,6 +12,7 @@ import {
   StatusBar,
   TextInput,
 } from 'react-native';
+import {Appstrings} from '../../Contants/Appstrings';
 
 const Categorylist = () => {
   const [selectedCategory, setSelectedCategory] = useState('Fruits');
@@ -72,7 +73,7 @@ const Categorylist = () => {
       });
   };
   const fetchSubcategories = async categoryId => {
-    const Bearer = await AsyncStorage.getItem('user_token');
+    const Bearer = await AsyncStorage.getItem(Appstrings.USER_TOCKEN);
     fetch('https://healthyfresh.lunarsenterprises.com/fishapp/subcategory', {
       method: 'GET',
       headers: {
@@ -254,14 +255,21 @@ const Categorylist = () => {
 
               return items.map(profile => (
                 <View key={profile.p_id} style={styles.profileCard}>
-                  <Image
-                    source={{uri: baseurl + profile.p_image}}
-                    style={styles.profileImage}
-                  />
-                  <Text style={styles.profileName}>{profile.p_name}</Text>
-                  {profile.surname && (
-                    <Text style={styles.profileSurname}>{profile.surname}</Text>
-                  )}
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigation.navigate('Product_view_Screen', profile.p_id)
+                    }>
+                    <Image
+                      source={{uri: baseurl + profile.p_image}}
+                      style={styles.profileImage}
+                    />
+                    <Text style={styles.profileName}>{profile.p_name}</Text>
+                    {profile.surname && (
+                      <Text style={styles.profileSurname}>
+                        {profile.surname}
+                      </Text>
+                    )}
+                  </TouchableOpacity>
                 </View>
               ));
             })}

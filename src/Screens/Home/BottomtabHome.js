@@ -6,6 +6,7 @@ import HomeScreen from './HomeScreen';
 import Categorylist from '../Category/Categorylist';
 import My_Order from '../Profile_Screen/My_Order/My_Order';
 import Cart from '../Cart_Screen/Cart';
+import ProfileScreen from '../Profile_Screen/ProfileScreen';
 
 // Import your images
 const homeIcon = require('../../assets/images/Fishimage/home.png'); // Adjust paths based on your project
@@ -53,7 +54,7 @@ const BottomtabHome = () => {
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Category" component={Categorylist} />
       <Tab.Screen name="Cart" component={Cart} />
-      <Tab.Screen name="Profile" component={HomeScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 };

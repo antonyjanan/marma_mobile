@@ -1,5 +1,6 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/core';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -11,96 +12,104 @@ import {
   ScrollView,
   FlatList,
 } from 'react-native';
+import {Appstrings} from '../../Contants/Appstrings';
 
 const Cart = () => {
   const navigation = useNavigation();
 
-  const [cartItems, setCartItems] = useState([
-    {
-      id: '1',
-      name: 'Kerala Prawns',
-      price: 350,
-      image: 'https://i.imgur.com/nVQzl1Z.jpg',
-      quantity: 5,
-      deliveryTitlefee: 40,
-    },
-    {
-      id: '2',
-      name: 'Fresh Salmon',
-      price: 400,
-      image: 'https://i.imgur.com/nVQzl1Z.jpg',
-      quantity: 14,
-      deliveryTitlefee: 40,
-    },
-    {
-      id: '3',
-      name: 'King Crab',
-      price: 500,
-      image: 'https://i.imgur.com/nVQzl1Z.jpg',
-      quantity: 12,
-      deliveryTitlefee: 40,
-    },
-    {
-      id: '4',
-      name: 'Tuna Fish',
-      price: 450,
-      image: 'https://i.imgur.com/nVQzl1Z.jpg',
-      quantity: 1,
-      deliveryTitlefee: 0,
-    },
-  ]);
+  const [cartItems, setCartItems] = useState([]);
 
-  // Function to update quantity
+  useEffect(() => {
+    cartList();
+  }, []);
+
   const updateQuantity = (id, action) => {
     setCartItems(prevItems =>
       prevItems.map(item =>
-        item.id === id
+        item.p_id === id
           ? {
               ...item,
-              quantity:
+              ct_quantity:
                 action === 'increase'
-                  ? item.quantity + 1
-                  : Math.max(1, item.quantity - 1),
+                  ? item.ct_quantity + 1
+                  : Math.max(1, item.ct_quantity - 1),
             }
           : item,
       ),
     );
   };
 
-  // Total calculations
-  const totalItemPrice = cartItems.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0,
-  );
+  const totalItemPrice = cartItems.reduce((acc, item) => {
+    const price = item.p_discount_price ?? item.p_orgianl_price;
+    return acc + price * item.ct_quantity;
+  }, 0);
+
   const totalDeliveryFee = cartItems.reduce(
-    (acc, item) => acc + item.deliveryTitlefee,
+    (acc, item) => acc + (item.deliveryTitlefee || 0),
     0,
   );
-  const grandTotal = totalItemPrice + totalDeliveryFee;
 
-  // Render cart items
+  const grandTotal = totalItemPrice + (totalDeliveryFee ? totalDeliveryFee : 0);
+  console.log(totalItemPrice, 'totalItemPrice', grandTotal);
+
+  const cartList = async () => {
+    try {
+      const user_id = await AsyncStorage.getItem(Appstrings.USER_ID);
+      const requestbody = {
+        u_id: JSON.parse(user_id),
+      };
+
+      const response = await fetch(
+        'https://healthyfresh.lunarsenterprises.com/fishapp/list/cart',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestbody),
+        },
+      );
+
+      const data = await response.json();
+      console.log(data, 'data inside the cartlist');
+
+      if (data.result) {
+        setCartItems(data.list);
+      } else {
+        console.log(data.message, 'error in cart response');
+      }
+    } catch (error) {
+      console.log(error, 'error');
+    }
+  };
+
   const renderItem = ({item}) => {
-    const totalPrice = item.price * item.quantity;
+    const totalPrice =
+      (item.p_discount_price ?? item.p_orgianl_price) * item.ct_quantity;
 
+    const baseurl = 'https://healthyfresh.lunarsenterprises.com';
     return (
       <View style={styles.itemContainer}>
         <Image
-          source={{uri: item.image}}
+          source={{uri: baseurl + item.p_image}}
           style={styles.itemImage}
           resizeMode="cover"
         />
 
         <View style={styles.itemDetailsContainer}>
-          <Text style={styles.itemName}>{item.name}</Text>
+          <Text style={styles.itemName}>{item.p_name}</Text>
+          <Text
+            style={[styles.priceSymbol, {textDecorationLine: 'line-through'}]}>
+            ₹ {item.p_orgianl_price}
+          </Text>
           <View style={styles.priceContainer}>
             <Text style={styles.priceSymbol}>₹</Text>
-            <Text style={styles.price}>{item.price}</Text>
-            <Text style={styles.quantity}> / 500gm</Text>
+            <Text style={styles.price}>{item.p_discount_price}</Text>
+            <Text style={styles.quantity}> /{item.p_stocks}gm</Text>
           </View>
 
           <Text style={styles.itemDescription} numberOfLines={2}>
-            Fresh and high-quality seafood sourced directly from the best
-            suppliers.
+            {item.p_description}
           </Text>
 
           <View style={styles.deliveryInfoRow}>
@@ -112,19 +121,21 @@ const Cart = () => {
           <View style={styles.quantityContainer}>
             <TouchableOpacity
               style={styles.quantityButton}
-              onPress={() => updateQuantity(item.id, 'decrease')}>
+              onPress={() => updateQuantity(item.p_id, 'decrease')}>
               <Text style={styles.quantityButtonText}>−</Text>
             </TouchableOpacity>
 
-            <Text style={styles.quantityText}>{item.quantity}</Text>
+            <Text style={styles.quantityText}>{item.ct_quantity}</Text>
 
             <TouchableOpacity
               style={styles.quantityButton}
-              onPress={() => updateQuantity(item.id, 'increase')}>
+              onPress={() => updateQuantity(item.p_id, 'increase')}>
               <Text style={styles.quantityButtonText}>+</Text>
             </TouchableOpacity>
 
-            <Text style={styles.itemTotalPrice}>₹ {totalPrice}</Text>
+            <Text style={styles.itemTotalPrice}>
+              ₹ {item.p_discount_price ?? item.p_orgianl_price}
+            </Text>
           </View>
         </View>
       </View>
@@ -145,7 +156,7 @@ const Cart = () => {
             style={styles.backButton}
           />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Order Summary</Text>
+        <Text style={styles.headerTitle}>Cart</Text>
         <View style={styles.placeholder} />
       </View>
 
@@ -169,7 +180,9 @@ const Cart = () => {
                 Mobile Number +91 7826 598110
               </Text>
             </View>
-            <TouchableOpacity style={styles.changeButton}>
+            <TouchableOpacity
+              style={styles.changeButton}
+              onPress={() => navigation.navigate('Address')}>
               <Text style={styles.changeButtonText}>Change</Text>
             </TouchableOpacity>
           </View>
@@ -179,7 +192,7 @@ const Cart = () => {
         <View style={styles.orderItemsContainer}>
           <FlatList
             data={cartItems}
-            keyExtractor={item => item.id}
+            keyExtractor={item => item.p_id.toString()}
             renderItem={renderItem}
             scrollEnabled={false}
             ItemSeparatorComponent={() => <View style={{height: 15}} />} // Adds space between items
@@ -195,7 +208,9 @@ const Cart = () => {
 
           <View style={styles.priceRow}>
             <Text style={styles.priceLabel}>Delivery-fee</Text>
-            <Text style={styles.priceValue}>₹ {totalDeliveryFee}.00</Text>
+            <Text style={styles.priceValue}>
+              ₹ {totalDeliveryFee ? totalDeliveryFee : 0}.00
+            </Text>
           </View>
 
           <View style={[styles.priceRow, styles.totalRow]}>
@@ -208,7 +223,7 @@ const Cart = () => {
       {/* Continue Button */}
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.continueButton}>
-          <Text style={styles.continueButtonText}>Continue</Text>
+          <Text style={styles.continueButtonText}>Buy Now</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
