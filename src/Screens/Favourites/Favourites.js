@@ -43,9 +43,10 @@ const Favorites = () => {
     if (selectedItemId) {
       setFavorites(
         favorites.map(item =>
-          item.id === selectedItemId ? {...item, isFavorite: false} : item,
+          item.f_id === selectedItemId ? {...item, isFavorite: false} : item,
         ),
       );
+      addFav(selectedItemId, 0);
     }
     setModalVisible(false);
     setSelectedItemId(null);
@@ -66,9 +67,40 @@ const Favorites = () => {
 
   // Remove selected items
   const removeSelectedItems = () => {
-    setFavorites(favorites.filter(item => !selectedItems.includes(item.id)));
+    // setFavorites();
     setMultiSelectMode(false);
     setSelectedItems([]);
+    addFav(
+      favorites.filter(item => !selectedItems.includes(item.f_id)),
+      0,
+    );
+  };
+  const addFav = async (id, check) => {
+    let user_id = await AsyncStorage.getItem(Appstrings.USER_ID);
+    let requestbody = {
+      fav: check,
+      user_id: user_id,
+      p_id: id,
+    };
+
+    fetch('https://healthyfresh.lunarsenterprises.com/fishapp/add/fav', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestbody),
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.result) {
+          ToastAndroid.show(data.message, ToastAndroid.SHORT);
+        } else {
+          ToastAndroid.show(data.message, ToastAndroid.SHORT);
+        }
+      })
+      .catch(error => {
+        console.log(error, 'error');
+      });
   };
   const favList = async () => {
     let user_id = await AsyncStorage.getItem(Appstrings.USER_ID);

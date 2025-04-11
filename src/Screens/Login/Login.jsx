@@ -303,7 +303,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   passwordInput: {
-    color: 'back',
+    color: 'black',
     flex: 1,
   },
   eyeIcon: {

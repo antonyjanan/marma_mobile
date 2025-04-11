@@ -23,9 +23,8 @@ const ProfileScreen = () => {
   const handleToggleSwitch = () =>
     setNotificationsEnabled(!notificationsEnabled);
   const handleNavigation = goto => {
-    console.log(goto, 'goto');
-
     if (goto !== 'Login') {
+      console.log(goto, 'goto');
       navigation.navigate(goto);
     } else {
       Alert.alert(
