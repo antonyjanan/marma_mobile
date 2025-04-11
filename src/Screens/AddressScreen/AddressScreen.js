@@ -8,6 +8,8 @@ import {
   StyleSheet,
   StatusBar,
   Image,
+  ToastAndroid,
+  Alert,
 } from 'react-native';
 import {Appstrings} from '../../Contants/Appstrings';
 import {useFocusEffect, useNavigation} from '@react-navigation/core';
@@ -55,6 +57,82 @@ const AddressScreen = () => {
       console.log(error, 'error');
     }
   };
+  const DefaultAddress = async ua_id => {
+    setSelectedId(ua_id);
+    try {
+      const user_id = await AsyncStorage.getItem(Appstrings.USER_ID);
+      const requestbody = {
+        user_id: JSON.parse(user_id),
+        ua_id: ua_id,
+      };
+
+      const response = await fetch(
+        'https://healthyfresh.lunarsenterprises.com/fishapp/set/default-address',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestbody),
+        },
+      );
+
+      const data = await response.json();
+
+      if (data.result) {
+        ToastAndroid.show(data.message, ToastAndroid.SHORT);
+      } else {
+        ToastAndroid.show(data.message, ToastAndroid.SHORT);
+      }
+    } catch (error) {
+      console.log(error, 'error');
+    }
+  };
+  const handleDelete = id => {
+    Alert.alert(
+      'Delete',
+      'Are you sure you want to Delete?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Yes',
+          onPress: () => {
+            Deleteapi(id);
+          },
+        },
+      ],
+      {cancelable: true},
+    );
+  };
+  const Deleteapi = async id => {
+    // let user_id = await AsyncStorage.getItem(Appstrings.USER_ID);
+    let requestbody = {
+      ua_id: id,
+    };
+
+    fetch('https://healthyfresh.lunarsenterprises.com/fishapp/delete', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestbody),
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.result) {
+          ToastAndroid.show(data.message, ToastAndroid.SHORT);
+          AddressList();
+        } else {
+          ToastAndroid.show(data.message, ToastAndroid.SHORT);
+        }
+      })
+      .catch(error => {
+        console.log(error, 'error');
+      });
+  };
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -91,19 +169,21 @@ const AddressScreen = () => {
               </View>
             </View>
             <Text style={styles.text}>{item.ua_address}</Text>
+            <Text style={styles.text}>{item.ua_city}</Text>
             <Text style={styles.text}>Pin - {item.ua_zip_code}</Text>
             <Text style={styles.text}>Mobile - {item.ua_mobile}</Text>
 
             <View style={styles.cardActions}>
-              <TouchableOpacity onPress={() => alert('Edit address')}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('AddAddress', item)}>
                 <Text style={styles.iconButton}>✏️</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => alert('Delete address')}>
+              <TouchableOpacity onPress={() => handleDelete(item.ua_id)}>
                 <Text style={styles.iconButton}>🗑️</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => setSelectedId(item.ua_id)}>
+              <TouchableOpacity onPress={() => DefaultAddress(item.ua_id)}>
                 <Text style={styles.iconButton}>
-                  {selectedId === item.ua_id ? '✅' : '⬜'}
+                  {item.ua_default_address === 1 ? '✅' : '⬜'}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -175,14 +255,15 @@ const styles = StyleSheet.create({
   },
   badge: {
     backgroundColor: '#e8f0fd',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
+    paddingVertical: 3,
     borderRadius: 4,
   },
   badgeText: {
     color: '#0a65cc',
     fontSize: 10,
     fontWeight: 'bold',
+    textTransform: 'capitalize',
+    textAlign: 'center',
   },
   text: {
     color: '#333',

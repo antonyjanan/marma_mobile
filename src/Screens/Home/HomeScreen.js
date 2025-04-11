@@ -13,41 +13,14 @@ import {
   Dimensions,
   ImageBackground,
   StatusBar,
+  ToastAndroid,
 } from 'react-native';
 import SwiperFlatList from 'react-native-swiper-flatlist';
 import Toast from 'react-native-toast-message';
 import {Appstrings} from '../../Contants/Appstrings';
 
 const {width, height} = Dimensions.get('window');
-const offerItems = [
-  {
-    id: 1,
-    name: 'Kerala Fish',
-    price: '₹150',
-    quality: '500gm',
 
-    rating: 4.8,
-    image: require('../../assets/images/Fishimage/splashimage.png'),
-  },
-  {
-    id: 2,
-    name: 'Kerala Prawn',
-    price: '₹350',
-    quality: '500gm',
-
-    rating: 4.8,
-    image: require('../../assets/images/Fishimage/splashimage.png'),
-  },
-  {
-    id: 3,
-    name: 'Lobster',
-    price: '₹500 / 500gm',
-    quality: '500gm',
-
-    rating: 4.9,
-    image: require('../../assets/images/Fishimage/splashimage.png'),
-  },
-];
 const banners = [
   {
     id: '1',
@@ -161,17 +134,36 @@ const HomeScreen = () => {
         console.log(data, 'data added');
 
         if (data.result) {
-          Toast.show({
-            type: 'success',
-            position: 'bottom',
-            text1: data.message,
-            // text2: 'Added to Cart Successfully!',
-            visibilityTime: 2000, // 2 seconds
-            autoHide: true,
-            bottomOffset: 50, // Adjust position
-          });
+          ToastAndroid.show(data.message, ToastAndroid.SHORT);
         } else {
-          console.log(data.message, 'error in banner response');
+          ToastAndroid.show(data.message, ToastAndroid.SHORT);
+        }
+      })
+      .catch(error => {
+        console.log(error, 'error');
+      });
+  };
+  const addFav = async (id, check) => {
+    let user_id = await AsyncStorage.getItem(Appstrings.USER_ID);
+    let requestbody = {
+      fav: check,
+      user_id: user_id,
+      p_id: id,
+    };
+
+    fetch('https://healthyfresh.lunarsenterprises.com/fishapp/add/fav', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestbody),
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.result) {
+          ToastAndroid.show(data.message, ToastAndroid.SHORT);
+        } else {
+          ToastAndroid.show(data.message, ToastAndroid.SHORT);
         }
       })
       .catch(error => {
@@ -354,7 +346,10 @@ const HomeScreen = () => {
                   {/* Favorite Button */}
                   <TouchableOpacity
                     style={styles.favoriteIcon}
-                    onPress={() => toggleFavorite(index)}>
+                    onPress={() => {
+                      toggleFavorite(index),
+                        addFav(item.p_id, favorites[index] ? 0 : 1);
+                    }}>
                     <Image
                       source={
                         favorites[index]
@@ -390,9 +385,17 @@ const HomeScreen = () => {
                       <Text style={styles.ratingText}>4.5</Text>
                     </View>
                   </View>
+                  {item.p_discount_price > 0 ? (
+                    <Text style={{textDecorationLine: 'line-through'}}>
+                      ₹ {item.p_orgianl_price}
+                    </Text>
+                  ) : null}
                   <Text style={styles.offerPrice}>
-                    ₹{item.p_discount_price} /{' '}
-                    <Text style={styles.grams}>{item.p_stocks}gms/Kg</Text>
+                    ₹
+                    {item.p_discount_price
+                      ? item.p_discount_price
+                      : item.p_orgianl_price}{' '}
+                    / <Text style={styles.grams}>{item?.p_unit}gms</Text>
                   </Text>
 
                   {/* Add to Cart Button */}

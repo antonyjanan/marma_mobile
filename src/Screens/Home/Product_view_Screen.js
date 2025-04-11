@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/core';
 import React, {useEffect, useState} from 'react';
 import {
@@ -9,8 +10,10 @@ import {
   ScrollView,
   Image,
   Dimensions,
+  ToastAndroid,
 } from 'react-native';
 import Swiper from 'react-native-swiper';
+import {Appstrings} from '../../Contants/Appstrings';
 
 const offerItems = [
   {
@@ -67,10 +70,6 @@ const Product_view_Screen = ({route}) => {
 
   const toggleReadMore = () => setIsReadMoreVisible(!isReadMoreVisible);
 
-  const handleAddToCart = () => {
-    console.log('Added to cart:', quantity, 'Kerala Prawns');
-  };
-
   const handleBuyNow = () => {
     console.log('Buy now:', quantity, 'Kerala Prawns');
   };
@@ -103,8 +102,66 @@ const Product_view_Screen = ({route}) => {
         setProductview([]);
       });
   };
-  const pricePerUnit = productView[0]?.p_orgianl_price; // ₹350 per 500gm
-  const totalPrice = quantity * pricePerUnit; // Dynamic total price
+  const addFav = async (id, check) => {
+    let user_id = await AsyncStorage.getItem(Appstrings.USER_ID);
+    let requestbody = {
+      fav: check,
+      user_id: user_id,
+      p_id: id,
+    };
+
+    fetch('https://healthyfresh.lunarsenterprises.com/fishapp/add/fav', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestbody),
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.result) {
+          ToastAndroid.show(data.message, ToastAndroid.SHORT);
+        } else {
+          ToastAndroid.show(data.message, ToastAndroid.SHORT);
+        }
+      })
+      .catch(error => {
+        console.log(error, 'error');
+      });
+  };
+  const handleAddToCart = async () => {
+    let user_id = await AsyncStorage.getItem(Appstrings.USER_ID);
+    let requestbody = {
+      u_id: user_id,
+      p_id: productView[0]?.p_id,
+      quantity: quantity,
+    };
+
+    fetch('https://healthyfresh.lunarsenterprises.com/fishapp/add/cart', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestbody),
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data, 'data added');
+
+        if (data.result) {
+          ToastAndroid.show(data.message, ToastAndroid.SHORT);
+        } else {
+          ToastAndroid.show(data.message, ToastAndroid.SHORT);
+        }
+      })
+      .catch(error => {
+        console.log(error, 'error');
+      });
+  };
+  const pricePerUnit = productView[0]?.p_discount_price
+    ? productView[0]?.p_discount_price
+    : productView[0]?.p_orgianl_price;
+  const totalPrice = quantity * pricePerUnit;
   const baseurl = 'https://healthyfresh.lunarsenterprises.com';
   return (
     <SafeAreaView style={styles.container}>
@@ -143,7 +200,10 @@ const Product_view_Screen = ({route}) => {
           {/* Favorite Button */}
           <TouchableOpacity
             style={styles.favoriteIcon}
-            onPress={toggleFavorite}>
+            onPress={() => {
+              toggleFavorite(),
+                addFav(productView[0]?.p_id, isFavorite ? 0 : 1);
+            }}>
             <Image
               source={
                 isFavorite
@@ -168,11 +228,16 @@ const Product_view_Screen = ({route}) => {
                 <Text style={styles.badgeText}>Best Seller</Text>
               </View>
             </View>
+            {productView[0]?.p_discount_price > 0 ? (
+              <Text style={{textDecorationLine: 'line-through'}}>
+                ₹ {productView[0]?.p_orgianl_price}
+              </Text>
+            ) : null}
             <Text style={styles.priceText}>
               ₹ {pricePerUnit}
               <Text style={styles.priceTextgm}>
                 {' '}
-                / {productView[0]?.p_stocks} gm
+                / {productView[0]?.p_unit}
               </Text>
             </Text>
           </View>
@@ -303,12 +368,17 @@ const Product_view_Screen = ({route}) => {
                     <Text style={styles.ratingText}>4.5</Text>
                   </View>
                 </View>
-                <Text style={{textDecorationLine: 'line-through'}}>
-                  ₹ {item.p_orgianl_price}
-                </Text>
+                {item.p_discount_price > 0 ? (
+                  <Text style={{textDecorationLine: 'line-through'}}>
+                    ₹ {item.p_orgianl_price}
+                  </Text>
+                ) : null}
                 <Text style={styles.offerPrice}>
-                  ₹ {item.p_discount_price} /{' '}
-                  <Text style={styles.grams}>{item.p_stocks} gm</Text>
+                  ₹{' '}
+                  {item.p_discount_price
+                    ? item.p_discount_price
+                    : item.p_orgianl_price}{' '}
+                  / <Text style={styles.grams}>{item?.p_unit}</Text>
                 </Text>
               </TouchableOpacity>
             ))}

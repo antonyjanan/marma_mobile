@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   View,
   Text,
@@ -16,6 +16,7 @@ import {useNavigation} from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Appstrings} from '../../Contants/Appstrings';
+import {AuthContext} from '../../Context/AuthContext';
 
 const GoogleIcon = require('../../assets/images/Fishimage/Google.png');
 const AppleIcon = require('../../assets/images/Fishimage/Apple.png');
@@ -39,16 +40,19 @@ const LoginSchema = Yup.object().shape({
 });
 
 const Login = () => {
+  const {login} = useContext(AuthContext);
   const navigation = useNavigation();
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [loader, setLoader] = useState(false);
 
   const handleSocialLogin = platform => {
     console.log(`Logging in with ${platform}`);
   };
 
   const handleLogin = async values => {
+    setLoader(true);
     fetch('https://healthyfresh.lunarsenterprises.com/fishapp/login', {
       method: 'POST',
       headers: {
@@ -68,12 +72,15 @@ const Login = () => {
         if (data.result) {
           AsyncStorage.setItem(Appstrings.USER_ID, JSON.stringify(data.u_id));
           AsyncStorage.setItem(Appstrings.USER_TOCKEN, data.user_token);
-          navigation.navigate('BottomtabHome');
+          login(data.user_token);
+          setLoader(false);
         } else {
+          setLoader(false);
           Toast.show(data.message);
         }
       })
       .catch(error => {
+        setLoader(false);
         console.log(error, 'error');
       });
   };
@@ -184,8 +191,11 @@ const Login = () => {
               {/* Login Button */}
               <TouchableOpacity
                 style={styles.loginButton}
-                onPress={handleSubmit}>
-                <Text style={styles.loginButtonText}>Log In</Text>
+                onPress={handleSubmit}
+                disabled={loader ? true : false}>
+                <Text style={styles.loginButtonText}>
+                  {loader ? 'Loading...' : 'Log In'}
+                </Text>
               </TouchableOpacity>
 
               {/* Divider */}
@@ -293,6 +303,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   passwordInput: {
+    color: 'back',
     flex: 1,
   },
   eyeIcon: {

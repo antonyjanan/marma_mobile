@@ -18,20 +18,23 @@ import {Appstrings} from '../../Contants/Appstrings';
 import {useNavigation} from '@react-navigation/core';
 import CustomDropdown from '../../Component/CustomDropdown';
 
-const AddAddress = () => {
+const AddAddress = ({route}) => {
+  const params = route.params || '';
+  console.log(params, 'params');
+
   const navigation = useNavigation();
   const [form, setForm] = useState({
-    fullName: '',
-    mobile: '',
-    mail: '',
-    flat: '',
-    area: '',
-    landmark: '',
-    pincode: '',
-    city: '',
-    state: '',
+    fullName: params?.ua_name || '',
+    mobile: params.ua_mobile || '',
+    mail: params.ua_email || '',
+    flat: params.ua_address || '',
+    area: params.ua_district || '',
+    landmark: params.ua_landmark || '',
+    pincode: params.ua_zip_code || '',
+    city: params.ua_city || '',
+    state: params.ua_state || '',
     isDefault: false,
-    type: '',
+    type: params.ua_type || '',
   });
 
   const handleChange = (key, value) => {
@@ -45,7 +48,10 @@ const AddAddress = () => {
         name: form.fullName,
         email: form.mail,
         mobile: form.mobile,
-        address: `${form.flat}, ${form.area}, ${form.landmark}`,
+        address: `${form.flat}`,
+        state: form.state,
+        district: form.area,
+        landmark: form.landmark,
         city: form.city,
         zipcode: form.pincode,
         type: form.type,
@@ -75,7 +81,48 @@ const AddAddress = () => {
       console.log(error, 'error');
     }
   };
+  const EditAddress = async () => {
+    try {
+      const user_id = await AsyncStorage.getItem(Appstrings.USER_ID);
+      const requestbody = {
+        ua_id: params.ua_id || '',
+        u_id: user_id,
+        name: form.fullName,
+        email: form.mail,
+        mobile: form.mobile,
+        address: `${form.flat}`,
+        state: form.state,
+        district: form.area,
+        landmark: form.landmark,
+        city: form.city,
+        zipcode: form.pincode,
+        type: form.type,
+      };
+      console.log(requestbody, 'requestbody');
 
+      const response = await fetch(
+        'https://healthyfresh.lunarsenterprises.com/fishapp/add/address',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestbody),
+        },
+      );
+
+      const data = await response.json();
+      console.log(data, 'datdadtatda');
+      if (data.result) {
+        ToastAndroid.show(data.message, ToastAndroid.SHORT);
+        navigation.navigate('Address');
+      } else {
+        ToastAndroid.show(data.message, ToastAndroid.SHORT);
+      }
+    } catch (error) {
+      console.log(error, 'error');
+    }
+  };
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <StatusBar barStyle="dark-content" />
@@ -89,7 +136,9 @@ const AddAddress = () => {
             style={styles.backButton}
           />
         </TouchableOpacity>
-        <Text style={styles.heading}>Edit Address</Text>
+        <Text style={styles.heading}>
+          {params.ua_id ? 'Edit' : 'Add'} Address
+        </Text>
         <View style={styles.placeholder} />
       </View>
 
@@ -115,7 +164,7 @@ const AddAddress = () => {
       />
 
       <Text style={styles.labelText}>
-        Flat, House name, Building, Apartment
+        Flat, House name, Building, Apartment, Area, Street
       </Text>
       <TextInput
         style={styles.input}
@@ -123,7 +172,7 @@ const AddAddress = () => {
         onChangeText={text => handleChange('flat', text)}
       />
 
-      <Text style={styles.labelText}>Area, Street, Village</Text>
+      <Text style={styles.labelText}> District</Text>
       <TextInput
         style={styles.input}
         value={form.area}
@@ -175,7 +224,9 @@ const AddAddress = () => {
         <Text style={styles.label}>Make this default address</Text>
       </View>
 
-      <TouchableOpacity style={styles.button} onPress={() => addAddress()}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => (params ? EditAddress() : addAddress())}>
         <Text style={styles.buttonText}>save Address</Text>
       </TouchableOpacity>
     </ScrollView>
@@ -249,14 +300,14 @@ const styles = StyleSheet.create({
   },
 
   button: {
-    position: 'absolute',
-    bottom: 20,
-    width: '100%',
+    // position: 'absolute',
+    // bottom: 20,
+    // width: '100%',
     backgroundColor: '#007bff',
     paddingVertical: 14,
     borderRadius: 6,
     alignItems: 'center',
-    marginLeft: 16,
+    // marginLeft: 16,
   },
   buttonText: {
     color: '#fff',

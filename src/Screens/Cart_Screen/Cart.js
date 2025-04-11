@@ -100,12 +100,16 @@ const Cart = () => {
           <Text style={styles.itemName}>{item.p_name}</Text>
           <Text
             style={[styles.priceSymbol, {textDecorationLine: 'line-through'}]}>
-            ₹ {item.p_orgianl_price}
+            ₹ {item.p_discount_price > 0 ? item.p_orgianl_price : null}
           </Text>
           <View style={styles.priceContainer}>
             <Text style={styles.priceSymbol}>₹</Text>
-            <Text style={styles.price}>{item.p_discount_price}</Text>
-            <Text style={styles.quantity}> /{item.p_stocks}gm</Text>
+            <Text style={styles.price}>
+              {item.p_discount_price
+                ? item.p_discount_price
+                : item.p_orgianl_price}
+            </Text>
+            <Text style={styles.quantity}> /{item.p_unit}</Text>
           </View>
 
           <Text style={styles.itemDescription} numberOfLines={2}>

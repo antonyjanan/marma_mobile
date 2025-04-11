@@ -1,20 +1,17 @@
 import React from 'react';
-import 'react-native-gesture-handler'; // Ensure this is at the top
-import { NavigationContainer } from '@react-navigation/native';
-
-import Routes from './src/routes/Routes'; // Make sure the path is correct
-
-import { Text, View } from 'react-native';
+import {NavigationContainer} from '@react-navigation/native';
+import {StatusBar} from 'react-native';
+import Routes from './src/routes/Routes';
+import {AuthProvider} from './src/Context/AuthContext';
 
 const App = () => {
   return (
-
-
-    <NavigationContainer>
-      <Routes />
-
-    </NavigationContainer>
-
+    <AuthProvider>
+      <NavigationContainer>
+        {/* <StatusBar barStyle="dark-content" backgroundColor="#fff" /> */}
+        <Routes />
+      </NavigationContainer>
+    </AuthProvider>
   );
 };
 

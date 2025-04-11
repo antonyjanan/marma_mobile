@@ -527,46 +527,43 @@
 
 // export default Routes;
 
-import * as React from 'react';
-
+import React, {useContext, useEffect, useState} from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 
 import Splashscreen from '../Screens/Login/Splashscreen';
 import Login from '../Screens/Login/Login';
-import BottomtabHome from '../Screens/Home/BottomtabHome';
 import Registeration from '../Screens/Login/Registeration';
+import ForgotPassword from '../Screens/ForgotPassword';
+
+import BottomtabHome from '../Screens/Home/BottomtabHome';
+import Product_view_Screen from '../Screens/Home/Product_view_Screen';
+import ProfileScreen from '../Screens/Profile_Screen/ProfileScreen';
+import My_Order from '../Screens/Profile_Screen/My_Order/My_Order';
+import Myorder_Tracking from '../Screens/Profile_Screen/My_Order/Myorder_Tracking';
 import Favorites from '../Screens/Favourites/Favourites';
 import Notification from '../Screens/Notification/Notification';
-import My_Order from '../Screens/Profile_Screen/My_Order/My_Order';
-import Product_view_Screen from '../Screens/Home/Product_view_Screen';
-import Myorder_Tracking from '../Screens/Profile_Screen/My_Order/Myorder_Tracking';
-import Categorylist from '../Screens/Category/Categorylist';
 import Cart from '../Screens/Cart_Screen/Cart';
-import ForgotPassword from '../Screens/ForgotPassword';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import ProfileScreen from '../Screens/Profile_Screen/ProfileScreen';
-import {Appstrings} from '../Contants/Appstrings';
 import AddressScreen from '../Screens/AddressScreen/AddressScreen';
 import AddAddress from '../Screens/AddressScreen/AddAddress';
+import {AuthContext} from '../Context/AuthContext';
+import Profile from '../Screens/Profile_Screen/Profile';
 
 const Stack = createStackNavigator();
 const AuthStack = createStackNavigator();
-//..................AuthStack....................//
 
-function AuthStackScreen({setIsLoggedIn}) {
+function AuthStackScreen() {
+  console.log('Authstack');
+
   return (
     <AuthStack.Navigator initialRouteName="Login">
       <AuthStack.Screen
-        name="Login"
-        component={props => <Login {...props} setIsLoggedIn={setIsLoggedIn} />}
+        name="Splashscreen"
+        component={Splashscreen}
         options={{headerShown: false}}
       />
-
       <AuthStack.Screen
-        name="Splashscreen"
-        component={props => (
-          <Splashscreen {...props} setIsLoggedIn={setIsLoggedIn} />
-        )}
+        name="Login"
+        component={Login}
         options={{headerShown: false}}
       />
       <AuthStack.Screen
@@ -583,109 +580,85 @@ function AuthStackScreen({setIsLoggedIn}) {
   );
 }
 
-function Routes() {
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
-  const [initialRoute, setInitialRoute] = React.useState('Splashscreen');
-
-  React.useEffect(() => {
-    const checkToken = async () => {
-      try {
-        const token = await AsyncStorage.getItem(Appstrings.USER_TOCKEN);
-        console.log(token, 'token');
-
-        if (token) {
-          setIsLoggedIn(true);
-          setInitialRoute('Home');
-        } else {
-          setIsLoggedIn(false);
-          setInitialRoute('Splashscreen');
-        }
-      } catch (error) {
-        console.error('Failed to load token.', error);
-      }
-    };
-
-    checkToken();
-  }, []);
+function AppStackScreen() {
   return (
-    <>
-      {isLoggedIn ? (
-        <Stack.Navigator initialRouteName="BottomtabHome">
-          {/* //------------------------PRoduct Section---------- */}
-
-          <Stack.Screen
-            name="BottomtabHome"
-            component={BottomtabHome}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="Product_view_Screen"
-            component={Product_view_Screen}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="ProfileScreen"
-            component={ProfileScreen}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="Address"
-            component={AddressScreen}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="AddAddress"
-            component={AddAddress}
-            options={{headerShown: false}}
-          />
-
-          <Stack.Screen
-            name="Login"
-            component={Login}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="Splashscreen"
-            component={Splashscreen}
-            options={{headerShown: false}}
-          />
-
-          <Stack.Screen
-            name="Favorites"
-            component={Favorites}
-            options={{headerShown: false}}
-          />
-
-          <Stack.Screen
-            name="Notification"
-            component={Notification}
-            options={{headerShown: false}}
-          />
-
-          <Stack.Screen
-            name="Cart"
-            component={Cart}
-            options={{headerShown: false}}
-          />
-
-          {/* //------------------------Profile---------- */}
-
-          <Stack.Screen
-            name="My_Order"
-            component={My_Order}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="Myorder_Tracking"
-            component={Myorder_Tracking}
-            options={{headerShown: false}}
-          />
-        </Stack.Navigator>
-      ) : (
-        <AuthStackScreen setIsLoggedIn={setIsLoggedIn} />
-      )}
-    </>
+    <Stack.Navigator initialRouteName="BottomtabHome">
+      <Stack.Screen
+        name="BottomtabHome"
+        component={BottomtabHome}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Product_view_Screen"
+        component={Product_view_Screen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="ProfileScreen"
+        component={ProfileScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Address"
+        component={AddressScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="AddAddress"
+        component={AddAddress}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Favorites"
+        component={Favorites}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Notification"
+        component={Notification}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Cart"
+        component={Cart}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="My_Order"
+        component={My_Order}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Myorder_Tracking"
+        component={Myorder_Tracking}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Profile"
+        component={Profile}
+        options={{headerShown: false}}
+      />
+    </Stack.Navigator>
   );
 }
+
+const Routes = () => {
+  const {userToken, loading} = useContext(AuthContext);
+  const [isSplashVisible, setIsSplashVisible] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsSplashVisible(false);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isSplashVisible) {
+    return <Splashscreen />;
+  }
+
+  return userToken == null ? <AuthStackScreen /> : <AppStackScreen />;
+};
 
 export default Routes;

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   View,
   Text,
@@ -13,14 +13,18 @@ import menuarrow from '../../assets/images/Menuarrow.png';
 import userwhite from '../../assets/images/user.png';
 import {useNavigation} from '@react-navigation/core';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {AuthContext} from '../../Context/AuthContext';
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
+  const {logout} = useContext(AuthContext);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
   const handleToggleSwitch = () =>
     setNotificationsEnabled(!notificationsEnabled);
   const handleNavigation = goto => {
+    console.log(goto, 'goto');
+
     if (goto !== 'Login') {
       navigation.navigate(goto);
     } else {
@@ -36,7 +40,7 @@ const ProfileScreen = () => {
             text: 'Yes',
             onPress: async () => {
               await AsyncStorage.clear();
-              navigation.replace('Login');
+              logout();
             },
           },
         ],
@@ -77,7 +81,7 @@ const ProfileScreen = () => {
           iconBg="#DDF4D7"
           icon="👤"
           label="View & Edit Profile"
-          goto="BottomtabHome"
+          goto="Profile"
         />
         <MenuItem
           iconBg="#FBF4C5"
@@ -96,7 +100,7 @@ const ProfileScreen = () => {
           icon="⚙️"
           label="Notification"
           showSwitch
-          goto="BottomtabHome"
+          goto="Profile"
         />
         <MenuItem
           iconBg="#E7DCFD"
