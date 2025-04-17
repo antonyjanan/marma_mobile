@@ -63,21 +63,22 @@ const Profiles = () => {
     try {
       const user_id = await AsyncStorage.getItem(Appstrings.USER_ID);
 
-      const requestbody = {
-        u_id: JSON.parse(user_id),
-        name: fullName,
-        email: email,
-        mobile: mobile,
-      };
+      // Initialize FormData
+      const formData = new FormData();
+      formData.append('u_id', JSON.parse(user_id));
+      formData.append('name', fullName);
+      formData.append('email', email);
+      formData.append('mobile', mobile);
 
       const response = await fetch(
         'https://healthyfresh.lunarsenterprises.com/fishapp/edit/profile',
         {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
+            // 'Content-Type': 'multipart/form-data' — DON'T set this manually!
+            // Let fetch set it automatically when using FormData
           },
-          body: JSON.stringify(requestbody),
+          body: formData,
         },
       );
 
@@ -90,17 +91,18 @@ const Profiles = () => {
       } else {
         setLoader(false);
         ToastAndroid.show(data.message, ToastAndroid.SHORT);
-        console.log(data.message, 'error in cart respons');
+        console.log(data.message, 'error in cart response');
       }
     } catch (error) {
       ToastAndroid.show(
-        'server down please try again later',
+        'Server down, please try again later',
         ToastAndroid.SHORT,
       );
       setLoader(false);
       console.log(error, 'error');
     }
   };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -164,7 +166,7 @@ const Profiles = () => {
             />
             <TextInput
               style={[styles.input, {flex: 1}]}
-              placeholder="Mobile Number"
+              placeholder={mobile ? JSON.stringify(mobile) : 'Mobile Number'}
               value={mobile}
               onChangeText={setMobile}
               keyboardType="phone-pad"
