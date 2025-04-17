@@ -74,13 +74,16 @@ const Categorylist = () => {
   };
   const fetchSubcategories = async categoryId => {
     const Bearer = await AsyncStorage.getItem(Appstrings.USER_TOCKEN);
+    console.log(Bearer, 'Bearer');
+
     fetch('https://healthyfresh.lunarsenterprises.com/fishapp/subcategory', {
       method: 'GET',
       headers: {
+        category_id: categoryId,
         'Content-Type': 'application/json',
         Authorization: `Bearer ${Bearer}`,
       },
-      // body: JSON.stringify({category_id: categoryId}), dd
+      // body: JSON.stringify({category_id: categoryId}),
     })
       .then(response => response.json())
       .then(data => {
@@ -107,12 +110,14 @@ const Categorylist = () => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        c_id: categoryId ? categoryId : category[0]?.c_id,
+        category_id: categoryId ? categoryId : category[0]?.c_id,
         sub_category_id: subitem ? subitem : '',
       }),
     })
       .then(response => response.json())
       .then(data => {
+        console.log(data, 'datain product');
+
         if (data.result) {
           setProduct(data?.list || []);
         } else {
@@ -249,30 +254,23 @@ const Categorylist = () => {
         {/* Right content */}
         <View style={styles.mainContent}>
           <View style={styles.profileCardsContainer}>
-            {product.map((categoryObj, index) => {
-              const categoryName = Object.keys(categoryObj)[0];
-              const items = categoryObj[categoryName];
-
-              return items.map(profile => (
-                <View key={profile.p_id} style={styles.profileCard}>
-                  <TouchableOpacity
-                    onPress={() =>
-                      navigation.navigate('Product_view_Screen', profile.p_id)
-                    }>
-                    <Image
-                      source={{uri: baseurl + profile.p_image}}
-                      style={styles.profileImage}
-                    />
-                    <Text style={styles.profileName}>{profile.p_name}</Text>
-                    {profile.surname && (
-                      <Text style={styles.profileSurname}>
-                        {profile.surname}
-                      </Text>
-                    )}
-                  </TouchableOpacity>
-                </View>
-              ));
-            })}
+            {product.map(profile => (
+              <View key={profile.p_id} style={styles.profileCard}>
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate('Product_view_Screen', profile.p_id)
+                  }>
+                  <Image
+                    source={{uri: baseurl + profile.p_image}}
+                    style={styles.profileImage}
+                  />
+                  <Text style={styles.profileName}>{profile.p_name}</Text>
+                  {profile.surname && (
+                    <Text style={styles.profileSurname}>{profile.surname}</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            ))}
           </View>
         </View>
       </View>

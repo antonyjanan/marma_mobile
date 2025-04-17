@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  ToastAndroid,
 } from 'react-native';
 import {Formik} from 'formik';
 import * as Yup from 'yup';
@@ -64,8 +65,10 @@ const Registeration = ({navigation}) => {
           console.log(data, 'data in login');
           AsyncStorage.setItem(Appstrings.USER_TOCKEN, data.user_token);
           navigation.navigate('Login');
+          ToastAndroid.show(data.message, ToastAndroid.SHORT);
         } else {
           Toast.show(data.message);
+          ToastAndroid.show(data.message, ToastAndroid.SHORT);
         }
       })
       .catch(error => {
@@ -193,14 +196,14 @@ const Registeration = ({navigation}) => {
                 </TouchableOpacity>
 
                 {/* Divider */}
-                <View style={styles.dividerContainer}>
+                {/* <View style={styles.dividerContainer}>
                   <View style={styles.dividerLine} />
                   <Text style={styles.dividerText}>Or sign up with</Text>
                   <View style={styles.dividerLine} />
-                </View>
+                </View> */}
 
                 {/* Social Signup */}
-                <View style={styles.socialContainer}>
+                {/* <View style={styles.socialContainer}>
                   <TouchableOpacity
                     style={styles.socialButton}
                     onPress={() => handleSocialSignup('Apple')}>
@@ -216,7 +219,7 @@ const Registeration = ({navigation}) => {
                     onPress={() => handleSocialSignup('Facebook')}>
                     <Image source={FacebookIcon} style={styles.socialIcon} />
                   </TouchableOpacity>
-                </View>
+                </View> */}
 
                 {/* Login Link */}
                 <View style={styles.loginContainer}>

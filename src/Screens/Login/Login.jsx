@@ -9,6 +9,7 @@ import {
   Image,
   KeyboardAvoidingView,
   Platform,
+  ToastAndroid,
 } from 'react-native';
 import {Formik} from 'formik';
 import * as Yup from 'yup';
@@ -72,9 +73,13 @@ const Login = () => {
         if (data.result) {
           AsyncStorage.setItem(Appstrings.USER_ID, JSON.stringify(data.u_id));
           AsyncStorage.setItem(Appstrings.USER_TOCKEN, data.user_token);
+          AsyncStorage.setItem(Appstrings.USER_NAME, data.name);
+          AsyncStorage.setItem(Appstrings.USER_EMAIL, data.email);
           login(data.user_token);
           setLoader(false);
+          ToastAndroid.show(data.message, ToastAndroid.SHORT);
         } else {
+          ToastAndroid.show(data.message, ToastAndroid.SHORT);
           setLoader(false);
           Toast.show(data.message);
         }
@@ -198,15 +203,15 @@ const Login = () => {
                 </Text>
               </TouchableOpacity>
 
-              {/* Divider */}
+              {/* Divider
               <View style={styles.dividerContainer}>
                 <View style={styles.dividerLine} />
                 <Text style={styles.dividerText}>or</Text>
                 <View style={styles.dividerLine} />
-              </View>
+              </View> */}
 
               {/* Social Login */}
-              <View style={styles.socialLoginContainer}>
+              {/* <View style={styles.socialLoginContainer}>
                 <TouchableOpacity
                   style={styles.socialButton}
                   onPress={() => handleSocialLogin('Google')}>
@@ -222,7 +227,7 @@ const Login = () => {
                   onPress={() => handleSocialLogin('Facebook')}>
                   <Image source={FacebookIcon} style={styles.socialIcon} />
                 </TouchableOpacity>
-              </View>
+              </View> */}
 
               {/* Signup Link */}
               <View style={styles.signupContainer}>

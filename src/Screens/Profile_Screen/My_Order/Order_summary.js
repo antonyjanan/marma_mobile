@@ -12,10 +12,11 @@ import {
   ScrollView,
   FlatList,
   ToastAndroid,
+  Alert,
 } from 'react-native';
-import {Appstrings} from '../../Contants/Appstrings';
+import {Appstrings} from '../../../Contants/Appstrings';
 
-const Cart = () => {
+const Order_summary = () => {
   const navigation = useNavigation();
 
   const [cartItems, setCartItems] = useState([]);
@@ -182,7 +183,7 @@ const Cart = () => {
             <Text style={styles.itemName}>{item.p_name}</Text>
             <View style={styles.row}>
               <Image
-                source={require('../../assets/images/Fishimage/Starblue.png')}
+                source={require('../../../assets/images/Fishimage/Starblue.png')}
                 style={styles.Timing}
                 resizeMode="contain"
               />
@@ -247,17 +248,17 @@ const Cart = () => {
           style={styles.backButton}
           onPress={() => navigation.goBack()}>
           <Image
-            source={require('../../assets/images/Fishimage/Back.png')}
+            source={require('../../../assets/images/Fishimage/Back.png')}
             style={styles.backButton}
           />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Cart</Text>
+        <Text style={styles.headerTitle}>Order Summary</Text>
         <View style={styles.placeholder} />
       </View>
 
       <ScrollView style={styles.contentContainer}>
         {/* Delivery Information */}
-        {/* <View style={styles.deliveryInfoContainer}>
+        <View style={styles.deliveryInfoContainer}>
           <View style={styles.deliveryTitleContainer}>
             <Text style={styles.deliveryTitle}>Delivered to:</Text>
             <View style={styles.officeTag}>
@@ -292,10 +293,14 @@ const Cart = () => {
             <TouchableOpacity
               style={styles.changeButton}
               onPress={() => navigation.navigate('Address')}>
-              <Text style={styles.changeButtonText}>Change</Text>
+              <Text style={styles.changeButtonText}>
+                {!address || Object.keys(address).length === 0
+                  ? 'Add'
+                  : 'Change'}
+              </Text>
             </TouchableOpacity>
           </View>
-        </View> */}
+        </View>
 
         {/* Order Items */}
         <View style={styles.orderItemsContainer}>
@@ -333,7 +338,16 @@ const Cart = () => {
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.continueButton}
-          onPress={() => navigation.navigate('Order_summary')}>
+          onPress={() => {
+            if (!address || Object.keys(address).length === 0) {
+              Alert.alert('Address Missing', 'Please add address to continue.');
+            } else {
+              navigation.navigate('payment', {
+                amount: grandTotal,
+                cartItems: cartItems,
+              });
+            }
+          }}>
           <Text style={styles.continueButtonText}>Buy Now</Text>
         </TouchableOpacity>
       </View>
@@ -654,4 +668,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Cart;
+export default Order_summary;

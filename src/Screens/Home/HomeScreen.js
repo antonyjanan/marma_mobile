@@ -43,11 +43,13 @@ const HomeScreen = () => {
   const [category, setCategory] = useState([]);
   const [banner, setBanner] = useState([]);
   const [offers, setOffers] = useState([]);
+  const [address, setAddress] = useState([]);
 
   useEffect(() => {
     categoryList();
     BannerList();
     productList();
+    DefaultAddress();
   }, []);
 
   const categoryList = () => {
@@ -100,7 +102,39 @@ const HomeScreen = () => {
         console.log(error, 'error');
       });
   };
+  const DefaultAddress = async () => {
+    try {
+      const user_id = await AsyncStorage.getItem(Appstrings.USER_ID);
+      const requestbody = {
+        u_id: JSON.parse(user_id),
+      };
 
+      const response = await fetch(
+        'https://healthyfresh.lunarsenterprises.com/fishapp/list/address',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestbody),
+        },
+      );
+
+      const data = await response.json();
+      console.log(data, 'data inside address');
+
+      if (data.result) {
+        const defaultAddr = data.list.find(
+          item => item.ua_default_address === 1,
+        );
+        setAddress(defaultAddr);
+      } else {
+        console.log(data.message, 'error in cart respons');
+      }
+    } catch (error) {
+      console.log(error, 'error');
+    }
+  };
   const toggleFavorite = index => {
     setFavorites(prev => ({
       ...prev,
@@ -188,14 +222,18 @@ const HomeScreen = () => {
         showsVerticalScrollIndicator={false}>
         {/* Location Header */}
         <View style={styles.headerContainer}>
-          <View style={styles.locationContainer}>
+          <TouchableOpacity
+            style={styles.locationContainer}
+            onPress={() => navigation.navigate('Address')}>
             <Image
               source={require('../../assets/images/Fishimage/Location.png')}
               style={styles.locationIcon}
               resizeMode="contain"
             />
-            <Text style={styles.locationText}>Jl. Soekarno Hatta 15A...</Text>
-          </View>
+            <Text style={styles.locationText}>
+              {address.ua_address},{address.ua_city}...
+            </Text>
+          </TouchableOpacity>
           <View style={styles.headerIcons}>
             <TouchableOpacity onPress={() => navigation.navigate('Favorites')}>
               <Image
@@ -323,7 +361,7 @@ const HomeScreen = () => {
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Offer Items</Text>
             <TouchableOpacity>
-              <Text style={styles.seeAllText}>See all</Text>
+              {/* <Text style={styles.seeAllText}>See all</Text> */}
             </TouchableOpacity>
           </View>
 
@@ -332,98 +370,93 @@ const HomeScreen = () => {
             horizontal
             showsHorizontalScrollIndicator={false}
             style={styles.scrollView}>
-            {offers?.map(categoryObj => {
-              const categoryName = Object.keys(categoryObj)[0];
-              const items = categoryObj[categoryName];
-
-              return items?.map((item, index) => (
+            {offers?.map((item, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.offerItem}
+                onPress={() =>
+                  navigation.navigate('Product_view_Screen', item.p_id)
+                }>
+                {/* Favorite Button */}
                 <TouchableOpacity
-                  key={index}
-                  style={styles.offerItem}
-                  onPress={() =>
-                    navigation.navigate('Product_view_Screen', item.p_id)
-                  }>
-                  {/* Favorite Button */}
-                  <TouchableOpacity
-                    style={styles.favoriteIcon}
-                    onPress={() => {
-                      toggleFavorite(index),
-                        addFav(item.p_id, favorites[index] ? 0 : 1);
-                    }}>
-                    <Image
-                      source={
-                        favorites[index]
-                          ? require('../../assets/images/Fishimage/favourtieheart.png')
-                          : require('../../assets/images/Fishimage/unfavourtie.png')
-                      }
-                      style={[
-                        styles.heartIcon,
-                        favorites[index]
-                          ? styles.favoriteHeart
-                          : styles.unfavoriteHeart,
-                      ]}
-                      resizeMode="contain"
-                    />
-                  </TouchableOpacity>
-
+                  style={styles.favoriteIcon}
+                  onPress={() => {
+                    toggleFavorite(index),
+                      addFav(item.p_id, favorites[index] ? 0 : 1);
+                  }}>
                   <Image
-                    source={{uri: baseurl + item.p_image}}
-                    style={styles.offerImage}
+                    source={
+                      favorites[index]
+                        ? require('../../assets/images/Fishimage/favourtieheart.png')
+                        : require('../../assets/images/Fishimage/unfavourtie.png')
+                    }
+                    style={[
+                      styles.heartIcon,
+                      favorites[index]
+                        ? styles.favoriteHeart
+                        : styles.unfavoriteHeart,
+                    ]}
+                    resizeMode="contain"
                   />
+                </TouchableOpacity>
 
-                  <View style={styles.offerDetails}>
-                    <Text style={styles.offerName}>{item.p_name}</Text>
+                <Image
+                  source={{uri: baseurl + item.p_image}}
+                  style={styles.offerImage}
+                />
 
-                    <View style={styles.Star}>
-                      <Image
-                        source={
-                          require('../../assets/images/Fishimage/star.png') // Red Heart
-                        }
-                        style={styles.starIcon}
-                        resizeMode="contain"
-                      />
-                      <Text style={styles.ratingText}>4.5</Text>
-                    </View>
-                  </View>
-                  {item.p_discount_price > 0 ? (
-                    <Text style={{textDecorationLine: 'line-through'}}>
-                      ₹ {item.p_orgianl_price}
-                    </Text>
-                  ) : null}
-                  <Text style={styles.offerPrice}>
-                    ₹
-                    {item.p_discount_price
-                      ? item.p_discount_price
-                      : item.p_orgianl_price}{' '}
-                    / <Text style={styles.grams}>{item?.p_unit}gms</Text>
-                  </Text>
+                <View style={styles.offerDetails}>
+                  <Text style={styles.offerName}>{item.p_name}</Text>
 
-                  {/* Add to Cart Button */}
-                  <TouchableOpacity
-                    style={styles.addToCartButton}
-                    onPress={() => {
-                      addToCart(item.p_id, 1);
-                      toggleCart(index);
-                    }}>
+                  <View style={styles.Star}>
                     <Image
                       source={
-                        cartVisible[index]
-                          ? require('../../assets/images/Fishimage/Cart.png')
-                          : null
+                        require('../../assets/images/Fishimage/star.png') // Red Heart
                       }
-                      style={[
-                        styles.heartIcon,
-                        cartVisible[index] ? styles.cartHeart : null,
-                      ]}
+                      style={styles.starIcon}
                       resizeMode="contain"
                     />
-                    <Text style={styles.addToCartText}>
-                      {cartVisible[index] ? 'Carted' : 'Add to Cart'}
-                    </Text>
-                  </TouchableOpacity>
+                    <Text style={styles.ratingText}>4.5</Text>
+                  </View>
+                </View>
+                {item.p_discount_price > 0 ? (
+                  <Text style={{textDecorationLine: 'line-through'}}>
+                    ₹ {item.p_orgianl_price}
+                  </Text>
+                ) : null}
+                <Text style={styles.offerPrice}>
+                  ₹
+                  {item.p_discount_price
+                    ? item.p_discount_price
+                    : item.p_orgianl_price}{' '}
+                  / <Text style={styles.grams}>{item?.p_unit}gms</Text>
+                </Text>
+
+                {/* Add to Cart Button */}
+                <TouchableOpacity
+                  style={styles.addToCartButton}
+                  onPress={() => {
+                    addToCart(item.p_id, 1);
+                    toggleCart(index);
+                  }}>
+                  <Image
+                    source={
+                      cartVisible[index]
+                        ? require('../../assets/images/Fishimage/Cart.png')
+                        : null
+                    }
+                    style={[
+                      styles.heartIcon,
+                      cartVisible[index] ? styles.cartHeart : null,
+                    ]}
+                    resizeMode="contain"
+                  />
+                  <Text style={styles.addToCartText}>
+                    {cartVisible[index] ? 'Carted' : 'Add to Cart'}
+                  </Text>
                 </TouchableOpacity>
-              ));
-            })}
+              </TouchableOpacity>
+            ))}
           </ScrollView>
         </View>
       </ScrollView>

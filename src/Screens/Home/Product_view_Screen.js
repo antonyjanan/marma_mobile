@@ -15,35 +15,6 @@ import {
 import Swiper from 'react-native-swiper';
 import {Appstrings} from '../../Contants/Appstrings';
 
-const offerItems = [
-  {
-    id: 1,
-    name: 'Kerala Fish',
-    price: '₹150',
-    quality: '500gm',
-
-    rating: 4.8,
-    image: require('../../assets/images/Fishimage/splashimage.png'),
-  },
-  {
-    id: 2,
-    name: 'Kerala Prawn',
-    price: '₹350',
-    quality: '500gm',
-
-    rating: 4.8,
-    image: require('../../assets/images/Fishimage/splashimage.png'),
-  },
-  {
-    id: 3,
-    name: 'Lobster',
-    price: '₹500 / 500gm',
-    quality: '500gm',
-
-    rating: 4.9,
-    image: require('../../assets/images/Fishimage/splashimage.png'),
-  },
-];
 const {width, height} = Dimensions.get('window');
 const Product_view_Screen = ({route}) => {
   const navigation = useNavigation();
@@ -71,6 +42,11 @@ const Product_view_Screen = ({route}) => {
   const toggleReadMore = () => setIsReadMoreVisible(!isReadMoreVisible);
 
   const handleBuyNow = () => {
+    handleAddToCart();
+    navigation.navigate('Order_summary', {
+      product: productView[0]?.p_id,
+      quantity: quantity,
+    });
     console.log('Buy now:', quantity, 'Kerala Prawns');
   };
 
@@ -201,8 +177,9 @@ const Product_view_Screen = ({route}) => {
           <TouchableOpacity
             style={styles.favoriteIcon}
             onPress={() => {
-              toggleFavorite(),
-                addFav(productView[0]?.p_id, isFavorite ? 0 : 1);
+              const newFavStatus = !isFavorite;
+              setIsFavorite(newFavStatus);
+              addFav(productView[0]?.p_id, newFavStatus ? 1 : 0);
             }}>
             <Image
               source={
@@ -327,7 +304,7 @@ const Product_view_Screen = ({route}) => {
                 key={index}
                 style={styles.offerItem}
                 onPress={() =>
-                  navigation.navigate('Product_view_Screen', item.p_id)
+                  navigation.push('Product_view_Screen', item.p_id)
                 }>
                 {/* Favorite Button */}
                 {/* <TouchableOpacity

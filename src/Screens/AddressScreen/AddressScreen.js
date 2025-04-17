@@ -80,6 +80,7 @@ const AddressScreen = () => {
       const data = await response.json();
 
       if (data.result) {
+        AddressList();
         ToastAndroid.show(data.message, ToastAndroid.SHORT);
       } else {
         ToastAndroid.show(data.message, ToastAndroid.SHORT);

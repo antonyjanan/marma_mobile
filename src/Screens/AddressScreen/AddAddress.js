@@ -12,6 +12,7 @@ import {
   Image,
   StatusBar,
   ToastAndroid,
+  KeyboardAvoidingView,
 } from 'react-native';
 import {Checkbox} from 'react-native-paper';
 import {Appstrings} from '../../Contants/Appstrings';
@@ -43,8 +44,9 @@ const AddAddress = ({route}) => {
   const addAddress = async () => {
     try {
       const user_id = await AsyncStorage.getItem(Appstrings.USER_ID);
+      const Bearer = await AsyncStorage.getItem(Appstrings.USER_TOCKEN);
       const requestbody = {
-        u_id: user_id,
+        // u_id: user_id,
         name: form.fullName,
         email: form.mail,
         mobile: form.mobile,
@@ -64,6 +66,7 @@ const AddAddress = ({route}) => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            Authorization: `Bearer ${Bearer}`,
           },
           body: JSON.stringify(requestbody),
         },
@@ -83,10 +86,11 @@ const AddAddress = ({route}) => {
   };
   const EditAddress = async () => {
     try {
+      const Bearer = await AsyncStorage.getItem(Appstrings.USER_TOCKEN);
       const user_id = await AsyncStorage.getItem(Appstrings.USER_ID);
       const requestbody = {
         ua_id: params.ua_id || '',
-        u_id: user_id,
+        // u_id: user_id,
         name: form.fullName,
         email: form.mail,
         mobile: form.mobile,
@@ -98,14 +102,14 @@ const AddAddress = ({route}) => {
         zipcode: form.pincode,
         type: form.type,
       };
-      console.log(requestbody, 'requestbody');
 
       const response = await fetch(
-        'https://healthyfresh.lunarsenterprises.com/fishapp/add/address',
+        'https://healthyfresh.lunarsenterprises.com/fishapp/edit/address',
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            Authorization: `Bearer ${Bearer}`,
           },
           body: JSON.stringify(requestbody),
         },
@@ -125,110 +129,112 @@ const AddAddress = ({route}) => {
   };
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <StatusBar barStyle="dark-content" />
+      <KeyboardAvoidingView>
+        <StatusBar barStyle="dark-content" />
 
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../../assets/images/Fishimage/Back.png')}
+        <View style={styles.header}>
+          <TouchableOpacity
             style={styles.backButton}
-          />
-        </TouchableOpacity>
-        <Text style={styles.heading}>
-          {params.ua_id ? 'Edit' : 'Add'} Address
-        </Text>
-        <View style={styles.placeholder} />
-      </View>
-
-      <Text style={styles.labelText}>Full Name (First & Last Name)</Text>
-      <TextInput
-        style={styles.input}
-        value={form.fullName}
-        onChangeText={text => handleChange('fullName', text)}
-      />
-      <Text style={styles.labelText}>Mail</Text>
-      <TextInput
-        style={styles.input}
-        value={form.mail}
-        onChangeText={text => handleChange('mail', text)}
-      />
-
-      <Text style={styles.labelText}>Mobile Number</Text>
-      <TextInput
-        style={styles.input}
-        keyboardType="phone-pad"
-        value={form.mobile}
-        onChangeText={text => handleChange('mobile', text)}
-      />
-
-      <Text style={styles.labelText}>
-        Flat, House name, Building, Apartment, Area, Street
-      </Text>
-      <TextInput
-        style={styles.input}
-        value={form.flat}
-        onChangeText={text => handleChange('flat', text)}
-      />
-
-      <Text style={styles.labelText}> District</Text>
-      <TextInput
-        style={styles.input}
-        value={form.area}
-        onChangeText={text => handleChange('area', text)}
-      />
-
-      <Text style={styles.labelText}>Landmark</Text>
-      <TextInput
-        style={styles.input}
-        value={form.landmark}
-        onChangeText={text => handleChange('landmark', text)}
-      />
-
-      <View style={styles.row}>
-        <View style={{width: '48%'}}>
-          <Text style={styles.labelText}>Pincode</Text>
-          <TextInput
-            style={styles.input}
-            keyboardType="numeric"
-            value={form.pincode}
-            onChangeText={text => handleChange('pincode', text)}
-          />
+            onPress={() => navigation.goBack()}>
+            <Image
+              source={require('../../assets/images/Fishimage/Back.png')}
+              style={styles.backButton}
+            />
+          </TouchableOpacity>
+          <Text style={styles.heading}>
+            {params.ua_id ? 'Edit' : 'Add'} Address
+          </Text>
+          <View style={styles.placeholder} />
         </View>
 
-        <View style={{width: '48%'}}>
-          <Text style={styles.labelText}>Town/City</Text>
-          <TextInput
-            style={styles.input}
-            value={form.city}
-            onChangeText={text => handleChange('city', text)}
-          />
-        </View>
-      </View>
-
-      <Text style={styles.labelText}>State</Text>
-      <TextInput
-        style={styles.input}
-        value={form.state}
-        onChangeText={text => handleChange('state', text)}
-      />
-      <Text style={styles.labelText}>Address type</Text>
-      <CustomDropdown form={form} handleChange={handleChange} />
-
-      <View style={styles.checkboxContainer}>
-        <Checkbox
-          status={form.isDefault ? 'checked' : 'unchecked'}
-          onPress={() => handleChange('isDefault', !form.isDefault)}
+        <Text style={styles.labelText}>Full Name (First & Last Name)</Text>
+        <TextInput
+          style={styles.input}
+          value={form.fullName}
+          onChangeText={text => handleChange('fullName', text)}
         />
-        <Text style={styles.label}>Make this default address</Text>
-      </View>
+        <Text style={styles.labelText}>Mail</Text>
+        <TextInput
+          style={styles.input}
+          value={form.mail}
+          onChangeText={text => handleChange('mail', text)}
+        />
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => (params ? EditAddress() : addAddress())}>
-        <Text style={styles.buttonText}>save Address</Text>
-      </TouchableOpacity>
+        <Text style={styles.labelText}>Mobile Number</Text>
+        <TextInput
+          style={styles.input}
+          keyboardType="phone-pad"
+          value={form.mobile}
+          onChangeText={text => handleChange('mobile', text)}
+        />
+
+        <Text style={styles.labelText}>
+          Flat, House name, Building, Apartment, Area, Street
+        </Text>
+        <TextInput
+          style={styles.input}
+          value={form.flat}
+          onChangeText={text => handleChange('flat', text)}
+        />
+
+        <Text style={styles.labelText}> District</Text>
+        <TextInput
+          style={styles.input}
+          value={form.area}
+          onChangeText={text => handleChange('area', text)}
+        />
+
+        <Text style={styles.labelText}>Landmark</Text>
+        <TextInput
+          style={styles.input}
+          value={form.landmark}
+          onChangeText={text => handleChange('landmark', text)}
+        />
+
+        <View style={styles.row}>
+          <View style={{width: '48%'}}>
+            <Text style={styles.labelText}>Pincode</Text>
+            <TextInput
+              style={styles.input}
+              keyboardType="numeric"
+              value={form.pincode}
+              onChangeText={text => handleChange('pincode', text)}
+            />
+          </View>
+
+          <View style={{width: '48%'}}>
+            <Text style={styles.labelText}>Town/City</Text>
+            <TextInput
+              style={styles.input}
+              value={form.city}
+              onChangeText={text => handleChange('city', text)}
+            />
+          </View>
+        </View>
+
+        <Text style={styles.labelText}>State</Text>
+        <TextInput
+          style={styles.input}
+          value={form.state}
+          onChangeText={text => handleChange('state', text)}
+        />
+        <Text style={styles.labelText}>Address type</Text>
+        <CustomDropdown form={form} handleChange={handleChange} />
+
+        <View style={styles.checkboxContainer}>
+          <Checkbox
+            status={form.isDefault ? 'checked' : 'unchecked'}
+            onPress={() => handleChange('isDefault', !form.isDefault)}
+          />
+          <Text style={styles.label}>Make this default address</Text>
+        </View>
+
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => (params ? EditAddress() : addAddress())}>
+          <Text style={styles.buttonText}>save Address</Text>
+        </TouchableOpacity>
+      </KeyboardAvoidingView>
     </ScrollView>
   );
 };

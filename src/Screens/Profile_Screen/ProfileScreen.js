@@ -14,6 +14,7 @@ import userwhite from '../../assets/images/user.png';
 import {useNavigation} from '@react-navigation/core';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AuthContext} from '../../Context/AuthContext';
+import {Appstrings} from '../../Contants/Appstrings';
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
@@ -66,13 +67,14 @@ const ProfileScreen = () => {
       )}
     </TouchableOpacity>
   );
-
+  const user_name = AsyncStorage.getItem(Appstrings.USER_NAME);
+  const user_mail = AsyncStorage.getItem(Appstrings.USER_EMAIL);
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.profileContainer}>
         <Image source={userwhite} style={styles.profileImage} />
-        <Text style={styles.profileName}>Irma Juwan</Text>
-        <Text style={styles.profileEmail}>irmajuwan@gmail.cpm</Text>
+        <Text style={styles.profileName}>{user_name}</Text>
+        <Text style={styles.profileEmail}>{user_mail}</Text>
       </View>
 
       <View style={styles.menuContainer}>
@@ -80,7 +82,7 @@ const ProfileScreen = () => {
           iconBg="#DDF4D7"
           icon="👤"
           label="View & Edit Profile"
-          goto="Profile"
+          goto="profile"
         />
         <MenuItem
           iconBg="#FBF4C5"
@@ -99,7 +101,7 @@ const ProfileScreen = () => {
           icon="⚙️"
           label="Notification"
           showSwitch
-          goto="Profile"
+          goto="profile"
         />
         <MenuItem
           iconBg="#E7DCFD"

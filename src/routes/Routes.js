@@ -546,7 +546,9 @@ import Cart from '../Screens/Cart_Screen/Cart';
 import AddressScreen from '../Screens/AddressScreen/AddressScreen';
 import AddAddress from '../Screens/AddressScreen/AddAddress';
 import {AuthContext} from '../Context/AuthContext';
-import Profile from '../Screens/Profile_Screen/Profile';
+import Order_summary from '../Screens/Profile_Screen/My_Order/Order_summary';
+import paymentScreen from '../Screens/Profile_Screen/My_Order/paymentScreen';
+import Profiles from '../Screens/Profile_Screen/Profiles';
 
 const Stack = createStackNavigator();
 const AuthStack = createStackNavigator();
@@ -634,8 +636,18 @@ function AppStackScreen() {
         options={{headerShown: false}}
       />
       <Stack.Screen
-        name="Profile"
-        component={Profile}
+        name="profile"
+        component={Profiles}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Order_summary"
+        component={Order_summary}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="payment"
+        component={paymentScreen}
         options={{headerShown: false}}
       />
     </Stack.Navigator>
@@ -657,6 +669,7 @@ const Routes = () => {
   if (isSplashVisible) {
     return <Splashscreen />;
   }
+  console.log(userToken, 'userToken');
 
   return userToken == null ? <AuthStackScreen /> : <AppStackScreen />;
 };

@@ -1,5 +1,6 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/core';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -13,40 +14,15 @@ import {
 } from 'react-native';
 
 import StepIndicator from 'react-native-step-indicator';
+import {Appstrings} from '../../../Contants/Appstrings';
 
-const offerItems = [
-  {
-    id: 1,
-    name: 'Kerala Fish',
-    price: '₹150',
-    quality: '500gm',
-
-    rating: 4.8,
-    image: require('../../../assets/images/Fishimage/splashimage.png'),
-  },
-  {
-    id: 2,
-    name: 'Kerala Prawn',
-    price: '₹350',
-    quality: '500gm',
-
-    rating: 4.8,
-    image: require('../../../assets/images/Fishimage/splashimage.png'),
-  },
-  {
-    id: 3,
-    name: 'Lobster',
-    price: '₹500 / 500gm',
-    quality: '500gm',
-
-    rating: 4.9,
-    image: require('../../../assets/images/Fishimage/splashimage.png'),
-  },
-];
 const {width, height} = Dimensions.get('window');
 
-const Myorder_Tracking = () => {
+const Myorder_Tracking = ({route}) => {
   const navigation = useNavigation();
+  const params = route.params || '';
+
+  const [track, setTrack] = useState([]);
 
   const [saveCard, setSaveCard] = useState(false);
 
@@ -59,10 +35,47 @@ const Myorder_Tracking = () => {
   const handleSeeAll = () => {
     console.log('See all trending items pressed');
   };
+  useEffect(() => {
+    orderList();
+  }, []);
 
+  const orderList = async () => {
+    let user_id = await AsyncStorage.getItem(Appstrings.USER_ID);
+    let requestbody = {
+      u_id: user_id,
+    };
+
+    fetch('https://healthyfresh.lunarsenterprises.com/fishapp/list/order', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestbody),
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data, 'data added');
+
+        if (data.result) {
+          const Order = data.list.find(item => item.op_id === params);
+          setTrack(Order);
+        } else {
+          ToastAndroid.show(data.message, ToastAndroid.SHORT);
+        }
+      })
+      .catch(error => {
+        console.log(error, 'error');
+      });
+  };
   // Order tracking steps
 
-  const labels = ['Cart', 'Delivery', 'Payment', 'Order Confirmed'];
+  const labels = [
+    'Pending',
+    'Order Confirmed',
+    'Shipping',
+    'Out for Delivery',
+    'Delivered',
+  ];
   const customStyles = {
     stepIndicatorSize: 30,
     currentStepIndicatorSize: 40,
@@ -86,7 +99,35 @@ const Myorder_Tracking = () => {
     labelSize: 13,
     currentStepLabelColor: '#fe7013',
   };
+  const getStepFromStatus = status => {
+    switch (status?.toLowerCase()) {
+      case 'pending':
+        return 0;
+      case 'order confirmed':
+        return 1;
+      case 'shipping':
+        return 2;
+      case 'out for delivery':
+        return 3;
+      case 'delivered':
+        return 4;
+      default:
+        return 0;
+    }
+  };
   const [currentPosition, setCurrentPosition] = useState(0);
+  useEffect(() => {
+    if (track?.od_delivery_status) {
+      const step = getStepFromStatus(track.od_delivery_status);
+      setCurrentPosition(step);
+    }
+  }, [track?.od_delivery_status]);
+  function formatdate(inputdate) {
+    const date = new Date(inputdate);
+    const options = {day: '2-digit', month: 'short', year: 'numeric'};
+    return date.toLocaleDateString('en-GB', options);
+  }
+  const baseurl = 'https://healthyfresh.lunarsenterprises.com';
 
   return (
     <SafeAreaView style={styles.container}>
@@ -114,18 +155,18 @@ const Myorder_Tracking = () => {
       <ScrollView style={styles.content}>
         {/* Tracking ID */}
         <View style={styles.trackingIdContainer}>
-          <Text style={styles.trackingIdText}>Tracking Id: 265481</Text>
+          <Text style={styles.trackingIdText}>Tracking Id: ------</Text>
         </View>
 
         {/* Order Item */}
         <View style={styles.orderItemCard}>
           <Image
-            source={require('../../../assets/images/Fishimage/splashimage.png')}
+            source={{uri: baseurl + track?.p_image}}
             style={styles.orderImage}
           />
           <View style={styles.orderDetails}>
             <View style={styles.titleRow}>
-              <Text style={styles.orderTitle}>Kerala Prawns</Text>
+              <Text style={styles.orderTitle}>{track?.p_name}</Text>
               <View style={styles.ratingContainer}>
                 <Image
                   source={require('../../../assets/images/Fishimage/star.png')}
@@ -135,18 +176,26 @@ const Myorder_Tracking = () => {
                 <Text style={styles.ratingText}>4.8</Text>
               </View>
             </View>
+            {track?.p_discount_price > 0 ? (
+              <Text style={{textDecorationLine: 'line-through'}}>
+                ₹ {track?.p_orgianl_price}
+              </Text>
+            ) : null}
 
             <Text style={styles.priceText}>
-              ₹ 1400
-              <Text style={styles.priceTextkg}> / 2.0kg</Text>
+              ₹{' '}
+              {track?.p_discount_price
+                ? track?.p_discount_price
+                : track?.p_orgianl_price}
+              <Text style={styles.priceTextkg}> / {track?.p_unit} kg</Text>
             </Text>
             <Text style={styles.descriptionText} numberOfLines={2}>
-              Kerala prawns, known for their rich flavor and tende...
+              {track.p_description}
             </Text>
 
             <View style={styles.deliveryInfoRow}>
               <Text style={styles.deliveryTimeText}>Delivery in 45mins.</Text>
-              <Text style={styles.originalPriceText}>₹40</Text>
+              <Text style={styles.originalPriceText}>₹20</Text>
               <Text style={styles.freeText}>FREE</Text>
             </View>
           </View>
@@ -156,37 +205,42 @@ const Myorder_Tracking = () => {
         <View style={styles.paymentInfoCard}>
           <View style={styles.paymentHeaderRow}>
             <View>
-              <Text style={styles.paymentHeaderText}>Payment: Card</Text>
-
-              <View style={styles.saveCardRow}>
-                <TouchableOpacity
-                  style={styles.checkboxContainer}
-                  onPress={toggleSaveCard}>
-                  <View
-                    style={[
-                      styles.checkbox,
-                      saveCard && styles.checkboxChecked,
-                    ]}>
-                    {saveCard && (
-                      <Image
-                        source={require('../../../assets/images/Fishimage/Tick.png')}
-                        style={styles.starIcon}
-                        resizeMode="contain"
-                      />
-                    )}
-                  </View>
-                </TouchableOpacity>
-                <Text style={styles.saveCardText}>
-                  Save this card for future payments.
-                </Text>
-              </View>
+              <Text style={styles.paymentHeaderText}>
+                Payment: {track?.od_payment_method}
+              </Text>
+              {track?.od_payment_method === 'cash on delivery' ? null : (
+                <View style={styles.saveCardRow}>
+                  <TouchableOpacity
+                    style={styles.checkboxContainer}
+                    onPress={toggleSaveCard}>
+                    <View
+                      style={[
+                        styles.checkbox,
+                        saveCard && styles.checkboxChecked,
+                      ]}>
+                      {saveCard && (
+                        <Image
+                          source={require('../../../assets/images/Fishimage/Tick.png')}
+                          style={styles.starIcon}
+                          resizeMode="contain"
+                        />
+                      )}
+                    </View>
+                  </TouchableOpacity>
+                  <Text style={styles.saveCardText}>
+                    Save this card for future payments.
+                  </Text>
+                </View>
+              )}
             </View>
             <View>
               <View style={styles.successBadge}>
-                <Text style={styles.successText}>Successful</Text>
+                <Text style={styles.successText}>
+                  {track?.od_payment_status}
+                </Text>
               </View>
               <Text style={styles.dateTimeText}>
-                Date: 12 feb 2025 {'\n'}03:59 pm
+                Date: {formatdate(track?.od_created_at)} {'\n'}03:59 pm
               </Text>
             </View>
           </View>
@@ -215,15 +269,24 @@ const Myorder_Tracking = () => {
 
           <View style={styles.addressRow}>
             <View style={styles.addressContainer}>
-              <Text style={styles.nameText}>Irma Juwan</Text>
-              <Text style={styles.addressText}>6502 Preston Rd.</Text>
-              <Text style={styles.addressText}>Inglewood, Maine 98380</Text>
-              <Text style={styles.contactText}>Pin - 684208</Text>
+              <Text style={styles.nameText}>{track?.user_name}</Text>
+              <Text style={styles.addressText}>{track?.user_address}</Text>
+              <Text style={styles.addressText}>
+                {track?.user_city}
+                {track?.user_district}
+                {track?.user_state}
+              </Text>
               <Text style={styles.contactText}>
-                Mobile Number +91 7826 59810
+                landmark - {track?.user_landmark}
+              </Text>
+              <Text style={styles.contactText}>
+                Pin - {track?.user_zipcode}
+              </Text>
+              <Text style={styles.contactText}>
+                Mobile Number {track?.user_mobile_no}
               </Text>
             </View>
-            <View style={styles.changeButtonss}>
+            {/* <View style={styles.changeButtonss}>
               <TouchableOpacity
                 style={styles.changeButton}
                 onPress={handleChangeAddress}>
@@ -232,7 +295,7 @@ const Myorder_Tracking = () => {
               <Text style={styles.updateAddressText}>
                 Update your address before your order is packed
               </Text>
-            </View>
+            </View> */}
           </View>
         </View>
 
@@ -240,7 +303,7 @@ const Myorder_Tracking = () => {
         <View style={styles.priceDetailsSection}>
           <View style={styles.priceRow}>
             <Text style={styles.priceLabel}>Sub-total</Text>
-            <Text style={styles.priceValue}>₹ 1900.00</Text>
+            <Text style={styles.priceValue}>₹ {track?.od_amount}</Text>
           </View>
           <View style={styles.priceRow}>
             <Text style={styles.priceLabel}>Delivery-fee</Text>
@@ -248,12 +311,12 @@ const Myorder_Tracking = () => {
           </View>
           <View style={[styles.priceRow, styles.totalRow]}>
             <Text style={styles.totalLabel}>Total-Price</Text>
-            <Text style={styles.totalValue}>₹ 1400.00</Text>
+            <Text style={styles.totalValue}>₹ {track?.od_amount}</Text>
           </View>
         </View>
 
         {/* Trending List */}
-        <View style={styles.trendingSection}>
+        {/* <View style={styles.trendingSection}>
           <View style={styles.trendingHeaderRow}>
             <Text style={styles.sectionTitle}>Trending List</Text>
             <TouchableOpacity onPress={handleSeeAll}>
@@ -261,8 +324,7 @@ const Myorder_Tracking = () => {
             </TouchableOpacity>
           </View>
 
-          {/* Trending items would go here - just showing placeholders */}
-          {/* Horizontal Scroll View */}
+          
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -272,25 +334,7 @@ const Myorder_Tracking = () => {
                 key={index}
                 style={styles.offerItem}
                 onPress={() => navigation.navigate('Product_view_Screen')}>
-                {/* Favorite Button */}
-                {/* <TouchableOpacity
-                                     style={styles.favoriteIcon}
-                                     onPress={() => toggleFavorite(index)}
-                                   >
-                                     <Image
-                                       source={
-                                         favorites[index]
-                                           ? require('../../../assets/images/Fishimage/favourtieheart.png') 
-                                           : require('../../../assets/images/Fishimage/unfavourtie.png') 
-                                       }
-                                       style={[
-                                         styles.heartIcon,
-                                         favorites[index] ? styles.favoriteHeart : styles.unfavoriteHeart
-                                       ]}
-                                       resizeMode="contain"
-                                     />
-                   
-                                   </TouchableOpacity> */}
+                
 
                 <Image source={item.image} style={styles.offerImage} />
 
@@ -313,14 +357,11 @@ const Myorder_Tracking = () => {
                   <Text style={styles.grams}>{item.quality}</Text>
                 </Text>
 
-                {/* Add to Cart Button
-                                   <TouchableOpacity style={styles.addToCartButton} onPress={addToCart}>
-                                     <Text style={styles.addToCartText}>Add to Cart</Text>
-                                   </TouchableOpacity> */}
+               
               </TouchableOpacity>
             ))}
           </ScrollView>
-        </View>
+        </View> */}
       </ScrollView>
     </SafeAreaView>
   );
