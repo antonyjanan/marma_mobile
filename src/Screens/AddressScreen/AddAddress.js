@@ -13,6 +13,7 @@ import {
   StatusBar,
   ToastAndroid,
   KeyboardAvoidingView,
+  SafeAreaView,
 } from 'react-native';
 import {Checkbox} from 'react-native-paper';
 import {Appstrings} from '../../Contants/Appstrings';
@@ -128,114 +129,121 @@ const AddAddress = ({route}) => {
     }
   };
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <KeyboardAvoidingView>
-        <StatusBar barStyle="dark-content" />
+    <SafeAreaView style={styles.container}>
+      <ScrollView>
+        <KeyboardAvoidingView>
+          <StatusBar barStyle="dark-content" />
 
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}>
-            <Image
-              source={require('../../assets/images/Fishimage/Back.png')}
+          <View style={styles.header}>
+            <TouchableOpacity
               style={styles.backButton}
-            />
-          </TouchableOpacity>
-          <Text style={styles.heading}>
-            {params.ua_id ? 'Edit' : 'Add'} Address
-          </Text>
-          <View style={styles.placeholder} />
-        </View>
-
-        <Text style={styles.labelText}>Full Name (First & Last Name)</Text>
-        <TextInput
-          style={styles.input}
-          value={form.fullName}
-          onChangeText={text => handleChange('fullName', text)}
-        />
-        <Text style={styles.labelText}>Mail</Text>
-        <TextInput
-          style={styles.input}
-          value={form.mail}
-          onChangeText={text => handleChange('mail', text)}
-        />
-
-        <Text style={styles.labelText}>Mobile Number</Text>
-        <TextInput
-          style={styles.input}
-          keyboardType="phone-pad"
-          value={form.mobile}
-          onChangeText={text => handleChange('mobile', text)}
-        />
-
-        <Text style={styles.labelText}>
-          Flat, House name, Building, Apartment, Area, Street
-        </Text>
-        <TextInput
-          style={styles.input}
-          value={form.flat}
-          onChangeText={text => handleChange('flat', text)}
-        />
-
-        <Text style={styles.labelText}> District</Text>
-        <TextInput
-          style={styles.input}
-          value={form.area}
-          onChangeText={text => handleChange('area', text)}
-        />
-
-        <Text style={styles.labelText}>Landmark</Text>
-        <TextInput
-          style={styles.input}
-          value={form.landmark}
-          onChangeText={text => handleChange('landmark', text)}
-        />
-
-        <View style={styles.row}>
-          <View style={{width: '48%'}}>
-            <Text style={styles.labelText}>Pincode</Text>
-            <TextInput
-              style={styles.input}
-              keyboardType="numeric"
-              value={form.pincode}
-              onChangeText={text => handleChange('pincode', text)}
-            />
+              onPress={() => navigation.goBack()}>
+              <Image
+                source={require('../../assets/images/Fishimage/Back.png')}
+                style={styles.backButton}
+              />
+            </TouchableOpacity>
+            <Text style={styles.heading}>
+              {params.ua_id ? 'Edit' : 'Add'} Address
+            </Text>
+            <View style={styles.placeholder} />
           </View>
 
-          <View style={{width: '48%'}}>
-            <Text style={styles.labelText}>Town/City</Text>
-            <TextInput
-              style={styles.input}
-              value={form.city}
-              onChangeText={text => handleChange('city', text)}
-            />
-          </View>
-        </View>
-
-        <Text style={styles.labelText}>State</Text>
-        <TextInput
-          style={styles.input}
-          value={form.state}
-          onChangeText={text => handleChange('state', text)}
-        />
-        <Text style={styles.labelText}>Address type</Text>
-        <CustomDropdown form={form} handleChange={handleChange} />
-
-        <View style={styles.checkboxContainer}>
-          <Checkbox
-            status={form.isDefault ? 'checked' : 'unchecked'}
-            onPress={() => handleChange('isDefault', !form.isDefault)}
+          <Text style={styles.labelText}>Full Name (First & Last Name)</Text>
+          <TextInput
+            style={styles.input}
+            value={form.fullName}
+            onChangeText={text => handleChange('fullName', text)}
           />
-          <Text style={styles.label}>Make this default address</Text>
-        </View>
+          <Text style={styles.labelText}>Mail</Text>
+          <TextInput
+            style={styles.input}
+            value={form.mail}
+            onChangeText={text => handleChange('mail', text)}
+          />
 
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => (params ? EditAddress() : addAddress())}>
-          <Text style={styles.buttonText}>save Address</Text>
-        </TouchableOpacity>
-      </KeyboardAvoidingView>
-    </ScrollView>
+          <Text style={styles.labelText}>Mobile Number</Text>
+          <TextInput
+            style={styles.input}
+            keyboardType="phone-pad"
+            value={form.mobile}
+            onChangeText={text => handleChange('mobile', text)}
+          />
+
+          <Text style={styles.labelText}>
+            Flat, House name, Building, Apartment, Area, Street
+          </Text>
+          <TextInput
+            style={styles.input}
+            value={form.flat}
+            onChangeText={text => handleChange('flat', text)}
+          />
+
+          <Text style={styles.labelText}> District</Text>
+          <TextInput
+            style={styles.input}
+            value={form.area}
+            onChangeText={text => handleChange('area', text)}
+          />
+
+          <Text style={styles.labelText}>Landmark</Text>
+          <TextInput
+            style={styles.input}
+            value={form.landmark}
+            onChangeText={text => handleChange('landmark', text)}
+          />
+
+          <View style={styles.row}>
+            <View style={{width: '48%'}}>
+              <Text style={styles.labelText}>Pincode</Text>
+              <TextInput
+                style={styles.input}
+                keyboardType="numeric"
+                value={form.pincode}
+                onChangeText={text => handleChange('pincode', text)}
+              />
+            </View>
+
+            <View style={{width: '48%'}}>
+              <Text style={styles.labelText}>Town/City</Text>
+              <TextInput
+                style={styles.input}
+                value={form.city}
+                onChangeText={text => handleChange('city', text)}
+              />
+            </View>
+          </View>
+
+          <Text style={styles.labelText}>State</Text>
+          <TextInput
+            style={styles.input}
+            value={form.state}
+            onChangeText={text => handleChange('state', text)}
+          />
+          <Text style={styles.labelText}>Address type</Text>
+          <CustomDropdown form={form} handleChange={handleChange} />
+
+          <TouchableOpacity
+            style={styles.checkboxContainer}
+            onPress={() => handleChange('isDefault', !form.isDefault)}>
+            <View style={styles.checkbox}>
+              {form.isDefault === true && <View style={styles.checked} />}
+            </View>
+            {/* <Checkbox
+              status={ form.isDefault? 'checked' : 'unchecked'}
+              onPress={() => handleChange('isDefault', !form.isDefault)}
+            /> */}
+            <Text style={styles.label}>Make this default address</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => (params ? EditAddress() : addAddress())}>
+            <Text style={styles.buttonText}>save Address</Text>
+          </TouchableOpacity>
+        </KeyboardAvoidingView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
@@ -319,5 +327,22 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     textTransform: 'capitalize',
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderWidth: 1,
+    borderColor: '#999',
+    marginRight: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 4,
+  },
+
+  checked: {
+    width: 12,
+    height: 12,
+    backgroundColor: '#007bff',
+    borderRadius: 2,
   },
 });

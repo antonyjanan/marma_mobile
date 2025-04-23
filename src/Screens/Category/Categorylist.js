@@ -73,6 +73,7 @@ const Categorylist = () => {
       });
   };
   const fetchSubcategories = async categoryId => {
+    setSubcategories([]);
     const Bearer = await AsyncStorage.getItem(Appstrings.USER_TOCKEN);
     console.log(Bearer, 'Bearer');
 
@@ -104,15 +105,17 @@ const Categorylist = () => {
   const fetchProduct = (categoryId, subitem) => {
     console.log(categoryId, subitem, 'subitems');
 
+    const requestBody = {
+      category_id: !subitem ? categoryId || category[0]?.c_id : undefined,
+      sub_category_id: subitem || '',
+    };
+
     fetch('https://healthyfresh.lunarsenterprises.com/fishapp/list/products', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        category_id: categoryId ? categoryId : category[0]?.c_id,
-        sub_category_id: subitem ? subitem : '',
-      }),
+      body: JSON.stringify(requestBody),
     })
       .then(response => response.json())
       .then(data => {

@@ -165,7 +165,7 @@ const paymentScreen = ({route}) => {
         </TouchableOpacity> */}
         <Image
           source={require('../../../assets/images/Qrcode.jpg')}
-          style={{width: '100%', height: '130%'}}
+          style={{width: '100%', height: '110%'}}
         />
 
         <TouchableOpacity

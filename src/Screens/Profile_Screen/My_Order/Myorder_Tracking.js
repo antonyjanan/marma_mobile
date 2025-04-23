@@ -11,6 +11,7 @@ import {
   ScrollView,
   StatusBar,
   Dimensions,
+  ToastAndroid,
 } from 'react-native';
 
 import StepIndicator from 'react-native-step-indicator';
@@ -68,7 +69,33 @@ const Myorder_Tracking = ({route}) => {
       });
   };
   // Order tracking steps
+  const handleOrderremover = async () => {
+    let user_id = await AsyncStorage.getItem(Appstrings.USER_ID);
+    let requestbody = {
+      user_id: user_id,
+      order_id: track?.od_id,
+    };
 
+    fetch('https://healthyfresh.lunarsenterprises.com/fishapp/cancel/order', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestbody),
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.result) {
+          ToastAndroid.show(data.message, ToastAndroid.SHORT);
+          navigation.goBack();
+        } else {
+          ToastAndroid.show(data.message, ToastAndroid.SHORT);
+        }
+      })
+      .catch(error => {
+        console.log(error, 'error');
+      });
+  };
   const labels = [
     'Pending',
     'Order Confirmed',
@@ -118,7 +145,7 @@ const Myorder_Tracking = ({route}) => {
   const [currentPosition, setCurrentPosition] = useState(0);
   useEffect(() => {
     if (track?.od_delivery_status) {
-      const step = getStepFromStatus(track.od_delivery_status);
+      const step = getStepFromStatus(track?.od_delivery_status);
       setCurrentPosition(step);
     }
   }, [track?.od_delivery_status]);
@@ -190,7 +217,7 @@ const Myorder_Tracking = ({route}) => {
               <Text style={styles.priceTextkg}> / {track?.p_unit} kg</Text>
             </Text>
             <Text style={styles.descriptionText} numberOfLines={2}>
-              {track.p_description}
+              {track?.p_description}
             </Text>
 
             <View style={styles.deliveryInfoRow}>
@@ -198,6 +225,11 @@ const Myorder_Tracking = ({route}) => {
               <Text style={styles.originalPriceText}>₹20</Text>
               <Text style={styles.freeText}>FREE</Text>
             </View>
+            <TouchableOpacity
+              style={styles.cancelBadge}
+              onPress={() => handleOrderremover()}>
+              <Text style={styles.cancelText}>cancel order</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -471,6 +503,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     borderRadius: 8,
     backgroundColor: '#0C8CE91F',
+    marginBottom: 10,
   },
   deliveryTimeText: {
     fontSize: 14,
@@ -516,6 +549,21 @@ const styles = StyleSheet.create({
     color: '#42B704',
     fontSize: 14,
     fontWeight: '500',
+  },
+  cancelBadge: {
+    borderWidth: 2,
+    borderColor: '#f56767',
+    backgroundColor: '#f56767',
+    paddingHorizontal: 12,
+    paddingVertical: 3,
+    borderRadius: 4,
+    marginBottom: 2,
+  },
+  cancelText: {
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: '500',
+    textAlign: 'center',
   },
   saveCardRow: {
     flexDirection: 'row',

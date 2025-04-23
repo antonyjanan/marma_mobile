@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useNavigation} from '@react-navigation/core';
-import React, {useEffect, useState} from 'react';
+import {useFocusEffect, useNavigation} from '@react-navigation/core';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -51,6 +51,11 @@ const HomeScreen = () => {
     productList();
     DefaultAddress();
   }, []);
+  useFocusEffect(
+    useCallback(() => {
+      DefaultAddress();
+    }, []),
+  );
 
   const categoryList = () => {
     fetch('https://healthyfresh.lunarsenterprises.com/fishapp/list/category', {
@@ -265,6 +270,7 @@ const HomeScreen = () => {
                 />
               </TouchableOpacity>
               <TextInput
+                onPress={() => navigation.navigate('search')}
                 placeholder="Search menu, restaurant or etc"
                 style={styles.searchInput}
               />
@@ -423,7 +429,9 @@ const HomeScreen = () => {
                   <Text style={{textDecorationLine: 'line-through'}}>
                     ₹ {item.p_orgianl_price}
                   </Text>
-                ) : null}
+                ) : (
+                  <Text style={{textDecorationLine: 'line-through'}}>{''}</Text>
+                )}
                 <Text style={styles.offerPrice}>
                   ₹
                   {item.p_discount_price
@@ -747,7 +755,7 @@ const styles = StyleSheet.create({
   offerName: {
     fontSize: 14,
     fontWeight: 'bold',
-
+    maxWidth: 120,
     marginBottom: 5,
   },
 

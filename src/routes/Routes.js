@@ -549,6 +549,7 @@ import {AuthContext} from '../Context/AuthContext';
 import Order_summary from '../Screens/Profile_Screen/My_Order/Order_summary';
 import paymentScreen from '../Screens/Profile_Screen/My_Order/paymentScreen';
 import Profiles from '../Screens/Profile_Screen/Profiles';
+import NoResultsScreen from '../Screens/Search/NoResultsScreen';
 
 const Stack = createStackNavigator();
 const AuthStack = createStackNavigator();
@@ -648,6 +649,11 @@ function AppStackScreen() {
       <Stack.Screen
         name="payment"
         component={paymentScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="search"
+        component={NoResultsScreen}
         options={{headerShown: false}}
       />
     </Stack.Navigator>

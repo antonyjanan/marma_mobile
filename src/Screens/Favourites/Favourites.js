@@ -40,12 +40,14 @@ const Favorites = () => {
   };
 
   const confirmRemoval = () => {
+    console.log(selectedItemId, 'selectedItemId');
     if (selectedItemId) {
       setFavorites(
         favorites.map(item =>
           item.f_id === selectedItemId ? {...item, isFavorite: false} : item,
         ),
       );
+
       addFav(selectedItemId, 0);
     }
     setModalVisible(false);
@@ -76,6 +78,8 @@ const Favorites = () => {
     );
   };
   const addFav = async (id, check) => {
+    console.log(id, check, 'working or not');
+
     let user_id = await AsyncStorage.getItem(Appstrings.USER_ID);
     let requestbody = {
       fav: check,
@@ -92,8 +96,11 @@ const Favorites = () => {
     })
       .then(response => response.json())
       .then(data => {
+        console.log(data, 'datainsisde');
+
         if (data.result) {
           ToastAndroid.show(data.message, ToastAndroid.SHORT);
+          favList();
         } else {
           ToastAndroid.show(data.message, ToastAndroid.SHORT);
         }
@@ -184,7 +191,7 @@ const Favorites = () => {
             <TouchableOpacity
               style={styles.favoriteButton}
               onPress={() => {
-                handleFavoritePress(item.f_id);
+                handleFavoritePress(item.p_id);
               }}>
               <Image
                 source={

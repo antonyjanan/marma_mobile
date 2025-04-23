@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useNavigation} from '@react-navigation/core';
-import React, {useEffect, useState} from 'react';
+import {useFocusEffect, useNavigation} from '@react-navigation/core';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -20,8 +20,14 @@ const My_Order = () => {
   useEffect(() => {
     orderList();
   }, []);
+  useFocusEffect(
+    useCallback(() => {
+      orderList();
+    }, []),
+  );
 
   const orderList = async () => {
+    setOrders([]);
     let user_id = await AsyncStorage.getItem(Appstrings.USER_ID);
     let requestbody = {
       u_id: user_id,
