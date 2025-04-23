@@ -155,7 +155,7 @@ const Categorylist = () => {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>All Categories</Text>
 
-        {search ? (
+        {/* {search ? (
           <TouchableOpacity
             style={styles.searchButton}
             onPress={() => setSearch(false)}>
@@ -173,7 +173,8 @@ const Categorylist = () => {
               style={styles.backButton}
             />
           </TouchableOpacity>
-        )}
+        )} */}
+        <View />
       </View>
       {/* //------search------------------- */}
 
@@ -192,12 +193,7 @@ const Categorylist = () => {
                 style={styles.searchInput}
               />
             </View>
-            <TouchableOpacity style={styles.filterIcon}>
-              {/* <Image
-                                source={require('../../assets/images/Fishimage/Filter.png')}
-                                style={styles.filterIconImage}
-                            /> */}
-            </TouchableOpacity>
+            <TouchableOpacity style={styles.filterIcon}></TouchableOpacity>
           </View>
         </View>
       )}

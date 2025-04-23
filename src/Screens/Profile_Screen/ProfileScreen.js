@@ -103,7 +103,7 @@ const ProfileScreen = () => {
           showSwitch
           goto="profile"
         />
-        <MenuItem
+        {/* <MenuItem
           iconBg="#E7DCFD"
           icon="📃"
           label="Terms & Conditions"
@@ -114,7 +114,7 @@ const ProfileScreen = () => {
           icon="🛠️"
           label="Support"
           goto="BottomtabHome"
-        />
+        /> */}
         <MenuItem iconBg="#FAD3D3" icon="🚪" label="Logout" goto="Login" />
       </View>
     </ScrollView>
