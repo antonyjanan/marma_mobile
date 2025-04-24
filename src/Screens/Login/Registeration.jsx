@@ -45,8 +45,10 @@ const SignupSchema = Yup.object().shape({
 
 const Registeration = ({navigation}) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [loader, setLoader] = useState(false);
 
   const handleSignup = values => {
+    setLoader(true);
     fetch('https://healthyfresh.lunarsenterprises.com/fishapp/user/register', {
       method: 'POST',
       headers: {
@@ -60,14 +62,19 @@ const Registeration = ({navigation}) => {
       }),
     })
       .then(response => response.json())
+
       .then(data => {
+        console.log(data, 'data');
+
         if (data.result) {
           console.log(data, 'data in login');
-          AsyncStorage.setItem(Appstrings.USER_TOCKEN, data.user_token);
-          navigation.navigate('Login');
           ToastAndroid.show(data.message, ToastAndroid.SHORT);
+          AsyncStorage.setItem(Appstrings.USER_TOCKEN, data?.user_token);
+          setLoader(false);
+          navigation.navigate('Login');
         } else {
-          Toast.show(data.message);
+          // Toast.show(data.message);
+          setLoader(false);
           ToastAndroid.show(data.message, ToastAndroid.SHORT);
         }
       })
@@ -192,7 +199,9 @@ const Registeration = ({navigation}) => {
                 <TouchableOpacity
                   style={styles.signupButton}
                   onPress={handleSubmit}>
-                  <Text style={styles.signupButtonText}>Sign Up</Text>
+                  <Text style={styles.signupButtonText}>
+                    {loader ? 'Loading..' : 'Sign Up'}
+                  </Text>
                 </TouchableOpacity>
 
                 {/* Divider */}
