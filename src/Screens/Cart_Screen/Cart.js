@@ -45,7 +45,10 @@ const Cart = () => {
   };
 
   const totalItemPrice = cartItems.reduce((acc, item) => {
-    const price = item.p_discount_price ?? item.p_orgianl_price;
+    const price =
+      item.p_discount_price && item.p_discount_price !== 0
+        ? item.p_discount_price
+        : item.p_orgianl_price;
     return acc + price * item.ct_quantity;
   }, 0);
 
@@ -156,7 +159,9 @@ const Cart = () => {
 
   const renderItem = ({item}) => {
     const totalPrice =
-      (item.p_discount_price ?? item.p_orgianl_price) * item.ct_quantity;
+      (item.p_discount_price && item.p_discount_price !== 0
+        ? item.p_discount_price
+        : item.p_orgianl_price) * item.ct_quantity;
 
     const baseurl = 'https://healthyfresh.lunarsenterprises.com';
     return (
@@ -191,7 +196,7 @@ const Cart = () => {
           </View>
           <Text
             style={[styles.priceSymbol, {textDecorationLine: 'line-through'}]}>
-            ₹ {item.p_discount_price > 0 ? item.p_orgianl_price : null}
+            {item.p_discount_price > 0 ? `₹${item.p_orgianl_price}` : null}
           </Text>
           <View style={styles.priceContainer}>
             <Text style={styles.priceSymbol}>₹</Text>
@@ -228,9 +233,7 @@ const Cart = () => {
               <Text style={styles.quantityButtonText}>+</Text>
             </TouchableOpacity>
 
-            <Text style={styles.itemTotalPrice}>
-              ₹ {item.p_discount_price ?? item.p_orgianl_price}
-            </Text>
+            <Text style={styles.itemTotalPrice}>₹ {totalPrice}</Text>
           </View>
         </View>
       </View>

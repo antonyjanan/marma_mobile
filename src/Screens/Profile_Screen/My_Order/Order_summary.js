@@ -46,7 +46,10 @@ const Order_summary = () => {
   };
 
   const totalItemPrice = cartItems.reduce((acc, item) => {
-    const price = item.p_discount_price ?? item.p_orgianl_price;
+    const price =
+      item.p_discount_price && item.p_discount_price !== 0
+        ? item.p_discount_price
+        : item.p_orgianl_price;
     return acc + price * item.ct_quantity;
   }, 0);
 
@@ -157,7 +160,9 @@ const Order_summary = () => {
 
   const renderItem = ({item}) => {
     const totalPrice =
-      (item.p_discount_price ?? item.p_orgianl_price) * item.ct_quantity;
+      (item.p_discount_price && item.p_discount_price !== 0
+        ? item.p_discount_price
+        : item.p_orgianl_price) * item.ct_quantity;
 
     const baseurl = 'https://healthyfresh.lunarsenterprises.com';
     return (
@@ -192,7 +197,7 @@ const Order_summary = () => {
           </View>
           <Text
             style={[styles.priceSymbol, {textDecorationLine: 'line-through'}]}>
-            ₹ {item.p_discount_price > 0 ? item.p_orgianl_price : null}
+            {item.p_discount_price > 0 ? `₹${item.p_orgianl_price}` : null}
           </Text>
           <View style={styles.priceContainer}>
             <Text style={styles.priceSymbol}>₹</Text>
@@ -229,9 +234,7 @@ const Order_summary = () => {
               <Text style={styles.quantityButtonText}>+</Text>
             </TouchableOpacity>
 
-            <Text style={styles.itemTotalPrice}>
-              ₹ {item.p_discount_price ?? item.p_orgianl_price}
-            </Text>
+            <Text style={styles.itemTotalPrice}>₹ {totalPrice}</Text>
           </View>
         </View>
       </View>
@@ -468,11 +471,9 @@ const styles = StyleSheet.create({
   deliveryInfoRow: {
     marginTop: 10,
     marginBottom: 10,
-
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-
     paddingVertical: 2,
     borderRadius: 3,
     backgroundColor: '#0C8CE91F',
@@ -572,7 +573,7 @@ const styles = StyleSheet.create({
   },
 
   deliveryTimeText: {
-    fontSize: 12,
+    fontSize: 10,
     color: '#0C8CE9',
   },
   strikeThrough: {

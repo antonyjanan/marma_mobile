@@ -437,7 +437,7 @@ const HomeScreen = () => {
                   {item.p_discount_price
                     ? item.p_discount_price
                     : item.p_orgianl_price}{' '}
-                  / <Text style={styles.grams}>{item?.p_unit}gms</Text>
+                  / <Text style={styles.grams}>{item?.p_unit}</Text>
                 </Text>
 
                 {/* Add to Cart Button */}
@@ -747,10 +747,11 @@ const styles = StyleSheet.create({
     height: 20,
   },
   offerImage: {
-    width: 165,
+    // width: 165,
     height: 100,
     borderRadius: 10,
     marginBottom: 10,
+    objectFit: 'cover',
   },
   offerName: {
     fontSize: 14,
@@ -795,7 +796,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     backgroundColor: '#0C8CE9',
     paddingVertical: 6,
-    paddingHorizontal: 15,
+    // paddingHorizontal: 15,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

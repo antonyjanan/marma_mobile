@@ -288,9 +288,9 @@ const Product_view_Screen = ({route}) => {
         <View style={styles.trendingSection}>
           <View style={styles.trendingHeaderRow}>
             <Text style={styles.sectionTitle}>Trending List</Text>
-            <TouchableOpacity onPress={handleSeeAll}>
+            {/* <TouchableOpacity onPress={handleSeeAll}>
               <Text style={styles.seeAllText}>See all</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
 
           {/* Trending items would go here - just showing placeholders */}
@@ -473,7 +473,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   productTitle: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: '600',
     color: '#000000',
   },
@@ -686,7 +686,7 @@ const styles = StyleSheet.create({
     height: 20,
   },
   offerImage: {
-    width: 165,
+    // width: 165,
     height: 100,
     borderRadius: 10,
     marginBottom: 10,

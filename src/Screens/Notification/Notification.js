@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/core';
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -16,6 +16,7 @@ import {Appstrings} from '../../Contants/Appstrings';
 
 const Notification = () => {
   const navigation = useNavigation();
+  const [notification, setNotification] = useState([]);
 
   const notifications = [
     {

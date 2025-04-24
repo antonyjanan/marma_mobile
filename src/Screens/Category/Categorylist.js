@@ -136,7 +136,7 @@ const Categorylist = () => {
 
   const baseurl = 'https://healthyfresh.lunarsenterprises.com/';
   return (
-    <SafeAreaView style={styles.container}>
+    <ScrollView style={styles.container}>
       <StatusBar
         backgroundColor="#87CEEB"
         barStyle="dark-content"
@@ -273,14 +273,14 @@ const Categorylist = () => {
           </View>
         </View>
       </View>
-    </SafeAreaView>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#fff',
     marginTop: 20,
   },
   header: {
@@ -377,20 +377,28 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   profileCard: {
-    width: '30%',
-    alignItems: 'center',
+    width: '40%',
     marginBottom: 16,
+    borderRadius: 8,
+    padding: 10,
+    alignItems: 'center',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
+
   profileImage: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
+    width: 60,
+    height: 60,
+    borderRadius: 40,
     marginBottom: 8,
+    resizeMode: 'cover',
   },
+
   profileName: {
     fontSize: 14,
     fontWeight: '500',
     textAlign: 'center',
+    // width: 100,
   },
   profileSurname: {
     fontSize: 14,
