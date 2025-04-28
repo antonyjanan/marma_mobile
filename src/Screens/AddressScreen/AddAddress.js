@@ -27,16 +27,16 @@ const AddAddress = ({route}) => {
   const navigation = useNavigation();
   const [form, setForm] = useState({
     fullName: params?.ua_name || '',
-    mobile: params.ua_mobile || '',
-    mail: params.ua_email || '',
-    flat: params.ua_address || '',
-    area: params.ua_district || '',
-    landmark: params.ua_landmark || '',
-    pincode: params.ua_zip_code || '',
-    city: params.ua_city || '',
-    state: params.ua_state || '',
+    mobile: params?.ua_mobile || '',
+    mail: params?.ua_email || '',
+    flat: params?.ua_address || '',
+    area: params?.ua_district || '',
+    landmark: params?.ua_landmark || '',
+    pincode: params?.ua_zip_code || '',
+    city: params?.ua_city || '',
+    state: params?.ua_state || '',
     isDefault: false,
-    type: params.ua_type || '',
+    type: params?.ua_type || '',
   });
 
   const handleChange = (key, value) => {
@@ -91,7 +91,7 @@ const AddAddress = ({route}) => {
       const user_id = await AsyncStorage.getItem(Appstrings.USER_ID);
       const requestbody = {
         ua_id: params.ua_id || '',
-        // u_id: user_id,
+        u_id: JSON.parse(user_id),
         name: form.fullName,
         email: form.mail,
         mobile: form.mobile,
@@ -103,6 +103,7 @@ const AddAddress = ({route}) => {
         zipcode: form.pincode,
         type: form.type,
       };
+      console.log(requestbody, 'requestbody');
 
       const response = await fetch(
         'https://healthyfresh.lunarsenterprises.com/fishapp/edit/address',

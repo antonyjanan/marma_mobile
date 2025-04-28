@@ -283,9 +283,7 @@ const Favorites = () => {
           </TouchableOpacity>
           <View style={styles.titleContainer}>
             <Text style={styles.title}>Favorites</Text>
-            <Text style={styles.subtitle}>
-              {favorites?.filter(item => item.isFavorite).length} items
-            </Text>
+            <Text style={styles.subtitle}>{favorites?.length} items</Text>
           </View>
           <TouchableOpacity
             style={styles.menuButton}

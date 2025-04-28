@@ -11,6 +11,7 @@ import {
   SafeAreaView,
   Modal,
   ToastAndroid,
+  Alert,
 } from 'react-native';
 import {Appstrings} from '../../../Contants/Appstrings';
 
@@ -64,55 +65,59 @@ const paymentScreen = ({route}) => {
   };
 
   const OrderItem = async () => {
-    setLoader(true);
-    try {
-      const user_id = await AsyncStorage.getItem(Appstrings.USER_ID);
-      const requestbody = {
-        u_id: JSON.parse(user_id),
-        amount: params.amount,
-        payment_method: selected,
-        user_name: address.ua_name,
-        user_email: address.ua_email,
-        user_mobile_no: address.ua_mobile,
-        user_address: address.ua_address,
-        user_state: address.ua_state,
-        user_district: address.ua_district,
-        landmark: address.ua_landmark,
-        user_city: address.ua_city,
-        user_zipcode: address.ua_zip_code,
-        product_details: params.cartItems.map(item => ({
-          product_id: item.p_id,
-          quantity: item.ct_quantity,
-        })),
-      };
-      console.log(requestbody, 'requestbody order');
+    if (selected) {
+      setLoader(true);
+      try {
+        const user_id = await AsyncStorage.getItem(Appstrings.USER_ID);
+        const requestbody = {
+          u_id: JSON.parse(user_id),
+          amount: params.amount,
+          payment_method: selected,
+          user_name: address.ua_name,
+          user_email: address.ua_email,
+          user_mobile_no: address.ua_mobile,
+          user_address: address.ua_address,
+          user_state: address.ua_state,
+          user_district: address.ua_district,
+          landmark: address.ua_landmark,
+          user_city: address.ua_city,
+          user_zipcode: address.ua_zip_code,
+          product_details: params.cartItems.map(item => ({
+            product_id: item.p_id,
+            quantity: item.ct_quantity,
+          })),
+        };
+        console.log(requestbody, 'requestbody order');
 
-      const response = await fetch(
-        'https://healthyfresh.lunarsenterprises.com/fishapp/add/order',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+        const response = await fetch(
+          'https://healthyfresh.lunarsenterprises.com/fishapp/add/order',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestbody),
           },
-          body: JSON.stringify(requestbody),
-        },
-      );
+        );
 
-      const data = await response.json();
-      console.log(data, 'data inside the cartlist');
+        const data = await response.json();
+        console.log(data, 'data inside the cartlist');
 
-      if (data.result) {
-        setShowModal(true);
-        ToastAndroid.show(data.message, ToastAndroid.SHORT);
-        setLoader(false);
-      } else {
-        console.log(data.message, 'error in cart response');
-        ToastAndroid.show(data.message, ToastAndroid.SHORT);
+        if (data.result) {
+          setShowModal(true);
+          ToastAndroid.show(data.message, ToastAndroid.SHORT);
+          setLoader(false);
+        } else {
+          console.log(data.message, 'error in cart response');
+          ToastAndroid.show(data.message, ToastAndroid.SHORT);
+          setLoader(false);
+        }
+      } catch (error) {
+        console.log(error, 'error');
         setLoader(false);
       }
-    } catch (error) {
-      console.log(error, 'error');
-      setLoader(false);
+    } else {
+      Alert.alert('Before proceeding select any payment method!!');
     }
   };
   return (

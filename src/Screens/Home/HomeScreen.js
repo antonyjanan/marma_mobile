@@ -219,6 +219,7 @@ const HomeScreen = () => {
     backgroundImage: getRandomBackground(),
   }));
   const baseurl = 'https://healthyfresh.lunarsenterprises.com/';
+  // const image = {uri: 'https://legacy.reactjs.org/logo-og.png'};
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar hidden={true} backgroundColor="white" />
@@ -302,7 +303,7 @@ const HomeScreen = () => {
             renderItem={({item, index}) => (
               <ImageBackground
                 key={item.b_id}
-                source={item.backgroundImage}
+                source={require('../../assets/images/Fishimage/Banner1.png')}
                 style={styles.backgroundImage}
                 resizeMode="cover">
                 <View style={styles.cardContainer}>
@@ -787,9 +788,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   ratingText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 'bold',
-    marginLeft: 3,
+    // marginLeft: 3,
     color: '#666',
   },
   addToCartButton: {
