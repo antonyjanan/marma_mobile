@@ -1,116 +1,183 @@
-import {useNavigation} from '@react-navigation/native';
-import React, {useEffect} from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import {
+  Animated,
   View,
-  Text,
-  StyleSheet,
   Dimensions,
-  StatusBar,
-  SafeAreaView,
-  ImageBackground,
+  StyleSheet,
+  Easing,
   Image,
-  TouchableOpacity,
 } from 'react-native';
 
-const Splashscreen = () => {
-  // useEffect(() => {
-  //     // Hide splash screen after loading
-  //     const timer = setTimeout(() => {
-  //         SplashScreen.hide();
-  //     }, 2000); // Adjust timeout as needed
+const { height, width } = Dimensions.get('window');
 
-  //     return () => clearTimeout(timer);
-  // }, []);
+export default function Splashscreen() {
+  const ballY = useRef(new Animated.Value(0)).current;
+  const redHeight = useRef(new Animated.Value(0)).current;
+  const textOpacity = useRef(new Animated.Value(0)).current;
+  const shadowScale = useRef(new Animated.Value(1)).current;
+  const shadowOpacity = useRef(new Animated.Value(0.3)).current;
 
-  const navigation = useNavigation();
+  const [hideBall, setHideBall] = useState(false);
 
-  const handlePress = () => {
-    navigation.navigate('Login');
-  };
+  useEffect(() => {
+    const bounce = () =>
+      Animated.sequence([
+        Animated.parallel([
+          Animated.timing(ballY, {
+            toValue: -120,
+            duration: 400,
+            easing: Easing.out(Easing.quad),
+            useNativeDriver: true,
+          }),
+          Animated.timing(shadowScale, {
+            toValue: 0.7,
+            duration: 400,
+            useNativeDriver: true,
+          }),
+          Animated.timing(shadowOpacity, {
+            toValue: 0.1,
+            duration: 400,
+            useNativeDriver: true,
+          }),
+        ]),
+        Animated.parallel([
+          Animated.timing(ballY, {
+            toValue: 0,
+            duration: 400,
+            easing: Easing.in(Easing.quad),
+            useNativeDriver: true,
+          }),
+          Animated.timing(shadowScale, {
+            toValue: 1,
+            duration: 400,
+            useNativeDriver: true,
+          }),
+          Animated.timing(shadowOpacity, {
+            toValue: 0.3,
+            duration: 400,
+            useNativeDriver: true,
+          }),
+        ]),
+      ]);
+
+    Animated.sequence([
+      bounce(),
+      bounce(),
+      bounce(),
+      Animated.timing(redHeight, {
+        toValue: height,
+        duration: 1200,
+        easing: Easing.inOut(Easing.exp),
+        useNativeDriver: false,
+      }),
+    ]).start(() => {
+      setHideBall(true);
+      Animated.timing(textOpacity, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: false,
+      }).start();
+    });
+  }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar hidden={true} />
-      <ImageBackground
-        source={require('../../assets/images/Fishimage/splashimage.png')}
-        style={styles.backgroundImage}
-        resizeMode="cover">
-        <View style={styles.contentOverlay}>
-          {/* <Text style={styles.titleText}>Fresh Fish & Groceries, One Click Away!</Text>
-          <Text style={styles.subtitleText}>
-            Quality seafood and daily essentials, delivered straight to your home!
-          </Text> */}
-          <Image
-            source={require('../../assets/images/Fishimage/Quotes.png')}
-            style={styles.fishImage}
-            resizeMode="contain"
-          />
-          <View style={styles.buttonmain}>
-            {/* <TouchableOpacity
-                            style={styles.button}
-                            onPress={handlePress} // Navigate on press
-                        >
-                            <Text style={styles.buttonText}>Go Ahead</Text>
-                        </TouchableOpacity> */}
-          </View>
-        </View>
-      </ImageBackground>
-    </SafeAreaView>
+    <View style={styles.container}>
+      {/* Red background spreading upward */}
+      <Animated.View style={[styles.redOverlay, { height: redHeight }]} />
+
+      {/* Shadow under the ball */}
+      {!hideBall && (
+        <Animated.View
+          style={[
+            styles.shadow,
+            {
+              transform: [{ scale: shadowScale }],
+              opacity: shadowOpacity,
+            },
+          ]}
+        />
+      )}
+
+      {/* Bouncing 3D red ball with highlight */}
+      {!hideBall && (
+        <Animated.View
+          style={[
+            styles.ball,
+            {
+              transform: [{ translateY: ballY }],
+            },
+          ]}
+        >
+          <View style={styles.highlight} />
+        </Animated.View>
+      )}
+
+      {/* Company logo fade-in */}
+      <Animated.Image
+        source={require('../../assets/images/marmasset/mrmalogo.png')}
+        style={[styles.iconCircle, { opacity: textOpacity }]}
+      />
+    </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
-  },
-  backgroundImage: {
-    position: 'absolute',
-    width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height,
-  },
-  contentOverlay: {
-    flex: 1,
+    backgroundColor: '#fff',
     justifyContent: 'flex-end',
-    marginHorizontal: 20,
-    paddingBottom: 40,
+    alignItems: 'center',
+    overflow: 'hidden',
   },
-  titleText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-    fontFamily: 'poppins',
-    marginBottom: 5,
-    textAlign: 'left',
-    zIndex: 9999,
+  ball: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'red',
+    position: 'absolute',
+    bottom: 20,
+    zIndex: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+    // iOS shadow
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    // Android elevation
+    elevation: 8,
   },
-  subtitleText: {
-    color: 'white',
-    fontSize: 16,
-    textAlign: 'left',
+  highlight: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: 'rgba(255,255,255,0.6)',
+    position: 'absolute',
+    top: 10,
+    left: 10,
   },
-  fishImage: {
-    width: '100%',
-    height: 100,
+  shadow: {
+    position: 'absolute',
+    bottom: 25,
+    width: 60,
+    height: 10,
+    borderRadius: 30,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    zIndex: 1,
   },
-  // Button Styling
-
-  button: {
-    borderWidth: 0.5,
-    alignSelf: 'flex-end',
-    borderColor: 'white',
-    borderRadius: 80,
-    paddingVertical: 15,
-    width: '35%',
-    backgroundColor: 'transparent',
-    marginTop: 20,
+  redOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    width: width,
+    backgroundColor: 'red',
+    zIndex: 0,
   },
-  buttonText: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: '500',
-    textAlign: 'center',
+  iconCircle: {
+    width: 180,
+    height: 180,
+    position: 'absolute',
+    top: height / 2 - 90,
+    alignSelf: 'center',
+    resizeMode: 'contain',
   },
 });
-
-export default Splashscreen;

@@ -1,18 +1,19 @@
 import React from 'react';
 import {StyleSheet, Image} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import HomeScreen from './HomeScreen';
+import Home from '../Dashboard/Home';
+import Detail_view_Screen from '../Dashboard/DetailsView_Screen/Detail_view_Screen';
+import SearchComponent from '../../Component/SearchComponent/SearchComponent';
+import Booking from '../Bookings/Booking';
+import TherapistSearchScreen from '../TherapistSearchScreen/TherapistSearchScreen';
+import ProfileScreen from '../Profile/ProfileScreen';
 
-import Categorylist from '../Category/Categorylist';
-import My_Order from '../Profile_Screen/My_Order/My_Order';
-import Cart from '../Cart_Screen/Cart';
-import ProfileScreen from '../Profile_Screen/ProfileScreen';
 
 // Import your images
-const homeIcon = require('../../assets/images/Fishimage/home.png'); // Adjust paths based on your project
-const categoryIcon = require('../../assets/images/Fishimage/Category.png');
-const cartIcon = require('../../assets/images/Fishimage/Cart.png');
-const profileIcon = require('../../assets/images/Fishimage/Profile.png');
+const homeIcon = require('../../assets/images/marmasset/home.png'); // Adjust paths based on your project
+const calendar = require('../../assets/images/marmasset/calendar.png');
+const search = require('../../assets/images/marmasset/search.png');
+const profileIcon = require('../../assets/images/marmasset/user.png');
 
 const Tab = createBottomTabNavigator();
 
@@ -26,11 +27,11 @@ const BottomtabHome = () => {
             case 'Home':
               iconSource = homeIcon;
               break;
-            case 'Category':
-              iconSource = categoryIcon;
+            case 'Bookings':
+              iconSource = calendar;
               break;
-            case 'Cart':
-              iconSource = cartIcon;
+            case 'Search':
+              iconSource = search;
               break;
             case 'Profile':
               iconSource = profileIcon;
@@ -46,14 +47,14 @@ const BottomtabHome = () => {
             />
           );
         },
-        tabBarActiveTintColor: '#1E90FF',
+        tabBarActiveTintColor: '#FE0000',
         tabBarInactiveTintColor: 'gray',
         headerShown: false,
       })}
       initialRouteName="Home">
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Category" component={Categorylist} />
-      <Tab.Screen name="Cart" component={Cart} />
+      <Tab.Screen name="Home" component={Home} />
+      <Tab.Screen name="Bookings" component={Booking} />
+      <Tab.Screen name="Search" component={TherapistSearchScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
