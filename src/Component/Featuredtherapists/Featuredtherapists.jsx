@@ -8,16 +8,7 @@ import {
   StatusBar,
   StyleSheet,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Feather';
 
-import foot from '../../assets/images/marmasset/foot.png';
-import Neck from '../../assets/images/marmasset/Neck.png';
-
-import head from '../../assets/images/marmasset/head.png';
-
-import knee from '../../assets/images/marmasset/knee.png';
-
-import massage from '../../assets/images/marmasset/Massage.png';
 
 import one from '../../assets/images/marmasset/one.png';
 import two from '../../assets/images/marmasset/two.png';

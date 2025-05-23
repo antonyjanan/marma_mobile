@@ -23,6 +23,7 @@ import {useNavigation} from '@react-navigation/core';
 import SearchComponent from '../../Component/SearchComponent/SearchComponent';
 import GradientText from '../../Component/GradientQuote/GradientText';
 import RequestPendingScreen from '../../Component/RequestPendingScreen/RequestPendingScreen';
+import {getUserProfile, therapists_list} from '../../Component/api/apiService';
 
 export default function Home() {
   const navigation = useNavigation();
@@ -88,9 +89,30 @@ export default function Home() {
     },
   ];
 
+  //------------categories--------------------
+
+  const [therapistdetail, settherapistdetail] = useState([]);
+
+  useEffect(() => {
+    const fetchTherapistDetails = async () => {
+      try {
+        const Therapist = await therapists_list();
+
+        const data = Therapist.data;
+        settherapistdetail(data); // Update state
+
+        console.log(data, 'datadata');
+      } catch (error) {
+        console.error('Failed to fetch therapist details:', error);
+      }
+    };
+
+    fetchTherapistDetails();
+  }, []);
+
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="red" />
+      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
 
       <SearchComponent />
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -104,7 +126,7 @@ export default function Home() {
           </Text>
         </View>
 
-        <RequestPendingScreen/>
+        <RequestPendingScreen />
 
         {/* Categories */}
         <View style={styles.sectioncate}>
@@ -226,7 +248,7 @@ const styles = StyleSheet.create({
   },
   locationText: {fontSize: 13, fontWeight: '600', color: '#1F1F1F'},
   dropdownIcon: {marginLeft: 4, color: '#999'},
-  section: {paddingHorizontal: 16, marginTop: 10,marginBottom:10},
+  section: {paddingHorizontal: 16, marginTop: 10, marginBottom: 10},
   welcomeTitle: {fontSize: 22, fontWeight: 'bold', fontFamily: 'roboto'},
   subtitle: {
     fontSize: 13,

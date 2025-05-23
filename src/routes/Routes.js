@@ -15,6 +15,8 @@ import NotificationsScreen from '../Screens/Notification/Notification';
 import EditProfileScreen from '../Screens/Profile/EditProfileScreen';
 import ContactUsScreen from '../Screens/Profile/ContactUsScreen';
 import PrivacyPolicyScreen from '../Screens/Profile/PrivacyPolicyScreen';
+import Chatscreen from '../Screens/Chat/Chatscreen';
+import HowToWorkScreen from '../Screens/Profile/HowToWorkScreen';
 
 
 const Stack = createStackNavigator();
@@ -24,7 +26,7 @@ function AuthStackScreen() {
   console.log('Authstack');
 
   return (
-    <AuthStack.Navigator initialRouteName="Home">
+    <AuthStack.Navigator initialRouteName="Roleselection">
       <AuthStack.Screen
         name="LoginScreen"
         component={LoginScreen}
@@ -53,7 +55,7 @@ function AuthStackScreen() {
         component={Roleselection}
         options={{ headerShown: false }}
       />
-    
+
 
     </AuthStack.Navigator>
   );
@@ -68,7 +70,7 @@ function AppStackScreen() {
         options={{ headerShown: false }}
       />
 
-       <Stack.Screen
+      <Stack.Screen
         name="Home"
         component={Home}
         options={{ headerShown: false }}
@@ -78,14 +80,14 @@ function AppStackScreen() {
         component={Detail_view_Screen}
         options={{ headerShown: false }}
       />
-     
-     
+
+
       <Stack.Screen
         name="Notification"
         component={NotificationsScreen}
         options={{ headerShown: false }}
       />
-    
+
       <Stack.Screen
         name="search"
         component={TherapistSearchScreen}
@@ -98,16 +100,29 @@ function AppStackScreen() {
         options={{ headerShown: false }}
       />
 
-       <Stack.Screen
+      <Stack.Screen
         name="ContactUsScreen"
         component={ContactUsScreen}
         options={{ headerShown: false }}
       />
 
 
-       <Stack.Screen
+      <Stack.Screen
         name="PrivacyPolicyScreen"
         component={PrivacyPolicyScreen}
+        options={{ headerShown: false }}
+      />
+
+
+      <Stack.Screen
+        name="Chatscreen"
+        component={Chatscreen}
+        options={{ headerShown: false }}
+      />
+
+      <Stack.Screen
+        name="HowToWorkScreen"
+        component={HowToWorkScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
@@ -129,7 +144,7 @@ const Routes = () => {
   if (isSplashVisible) {
     return <Splashscreen />;
   }
-  console.log(userToken, 'userToken');
+  console.log(userToken, 'userTokasdasden');
 
   return userToken == null ? <AuthStackScreen /> : <AppStackScreen />;
 };

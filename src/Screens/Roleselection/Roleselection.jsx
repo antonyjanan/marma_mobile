@@ -254,8 +254,8 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   fastTrack: {
-    fontSize: 14,
-    fontStyle: 'italic',
+    fontSize: 12,
+   
     color: '#555',
     marginBottom: 10,
   },

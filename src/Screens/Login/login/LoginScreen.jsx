@@ -131,6 +131,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   subtitleText: {
+     fontStyle: 'italic',
     fontSize: 14,
     color: '#666',
     textAlign: 'center',

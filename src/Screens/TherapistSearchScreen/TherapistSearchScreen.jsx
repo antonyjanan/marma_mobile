@@ -46,7 +46,7 @@ const TherapistSearchScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="red" />
+      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
 
       <SearchComponent />
 
@@ -126,8 +126,6 @@ const TherapistSearchScreen = () => {
           ))}
         </View>
       </ScrollView>
-
-   
     </SafeAreaView>
   );
 };
@@ -264,7 +262,7 @@ const styles = StyleSheet.create({
   therapistInfo: {
     justifyContent: 'center',
     flexDirection: 'row',
-    marginLeft:10
+    marginLeft: 10,
   },
   therapistNumber: {
     fontSize: 14,

@@ -1,147 +1,4 @@
-// import React from 'react';
-// import {
-//   View,
-//   Text,
-//   StyleSheet,
-//   Image,
-//   TouchableOpacity,
-//   SafeAreaView,
-// } from 'react-native';
-// import {ChevronRight} from 'lucide-react';
 
-// const RequestPendingScreen = () => {
-//   return (
-//     <SafeAreaView style={styles.container}>
-//       <View style={styles.card}>
-//         {/* Hourglass Icon and Header */}
-//         <View style={styles.headerContainer}>
-//           <View style={styles.iconContainer}>
-//             <Image
-//               source={require('../../assets/images/marmasset/loading.png')}
-//               style={{
-//                 height: 20,
-//                 width: 17,
-
-//                 marginRight: 4,
-//               }}
-//               resizeMode="contain"
-//             />
-//           </View>
-//           <Text style={styles.pendingText}>Request Pending ...</Text>
-//         </View>
-
-//         {/* Notification Message */}
-//         <Text style={styles.notificationText}>
-//           Please note that Dr. Adya will review and approve your request as soon
-//           as possible. We will notify you once it's confirmed.
-//         </Text>
-
-//         {/* Doctor Info Card */}
-//         <TouchableOpacity style={styles.doctorCard}>
-//           <Image
-//             source={require('../../assets/images/marmasset/one.png')}
-//             style={styles.doctorImage}
-//           />
-//           <View style={styles.doctorInfo}>
-//             <Text style={styles.doctorName}>Dr.Aarya Varun</Text>
-//             <Text style={styles.specialization}>Foot Massage Specialist</Text>
-//           </View>
-//         <Image
-//             source={require('../../assets/images/marmasset/rightarrow.png')}
-//             style={styles.iconarrow}
-//             resizeMode='contain'
-//           />
-//         </TouchableOpacity>
-//       </View>
-//     </SafeAreaView>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   container: {
-
-//     backgroundColor: '#FFFFFF',
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     padding: 16,
-//   },
-//   card: {
-//     width: '100%',
-//     backgroundColor: '#fff',
-//     borderRadius: 16,
-//     padding: 10,
-//     shadowColor: '#000',
-//     shadowOffset: {
-//       width: 0,
-//       height: 2,
-//     },
-//     shadowOpacity: 0.1,
-//     shadowRadius: 8,
-//     elevation: 5,
-//   },
-//   headerContainer: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     marginBottom: 5,
-//     marginTop:5
-//   },
-//   iconContainer: {
-//     marginRight: 5,
-//   },
-
-//   pendingText: {
-//     fontSize: 16,
-//     fontWeight: '500',
-//     color: '#222222',
-//   },
-//   notificationText: {
-//     fontSize: 12,
-//      fontWeight: '400',
-//     color: '#666',
-//     lineHeight: 20,
-//     marginBottom: 10,
-//   },
-//   doctorCard: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     backgroundColor: '#fff',
-//     borderWidth: 1,
-//     borderColor: '#eee',
-//     borderRadius: 5,
-//     padding: 5,
-
-//   },
-//   doctorImage: {
-//     width: 50,
-//     height: 50,
-//     borderRadius: 8,
-//   },
-
-//   iconarrow:{
-//     width: 30,
-//     height: 30,
-//   },
-//   doctorInfo: {
-//     flex: 1,
-//     marginLeft: 16,
-//   },
-//   doctorName: {
-//     fontSize: 14,
-//     fontWeight: '400',
-//     color: '#222222',
-//     marginBottom: 4,
-//   },
-//   specialization: {
-//     fontSize: 12,
-//     fontWeight: '400',
-//     color: '#222222',
-//   },
-//   chevron: {
-//     marginLeft: 8,
-//   },
-// });
-
-// export default RequestPendingScreen;
 import React, {useState} from 'react';
 import {
   View,
@@ -153,14 +10,17 @@ import {
   StatusBar,
   ImageBackground,
 } from 'react-native';
-import SearchComponent from '../../Component/SearchComponent/SearchComponent';
+
 import ticket from '../../assets/images/marmasset/ticket.png';
-import one from '../../assets/images/marmasset/one.png';
+import { useNavigation } from '@react-navigation/core';
+
 
 export default function RequestPendingScreen() {
-  const [activeTab, setActiveTab] = useState('Bookings');
-  const [bookingView, setBookingView] = useState('previous');
-  const [bookingcancel, setBookingcancel] = useState('cancel');
+ const navigation = useNavigation();
+
+  const handleChatscreen= () => {
+    navigation.navigate('Chatscreen');
+  };
 
   return (
     <View style={styles.container}>
@@ -240,7 +100,7 @@ export default function RequestPendingScreen() {
             }}>
             <TouchableOpacity
               style={styles.tabButtoncancel}
-              onPress={() => setBookingcancel('cancel')}>
+              onPress={handleChatscreen}>
               <Text style={styles.tabText}>Make Payment via Chat</Text>
               <Image
                 source={require('../../assets/images/marmasset/whitearrow.png')}

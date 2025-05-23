@@ -13,7 +13,6 @@ import SearchComponent from '../../Component/SearchComponent/SearchComponent';
 import ticket from '../../assets/images/marmasset/ticket.png';
 import one from '../../assets/images/marmasset/one.png';
 
-
 export default function Booking() {
   const [activeTab, setActiveTab] = useState('Bookings');
   const [bookingView, setBookingView] = useState('previous');
@@ -21,7 +20,7 @@ export default function Booking() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="red" />
+      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
 
       {/* Header */}
       <SearchComponent />
@@ -172,7 +171,7 @@ export default function Booking() {
           </View>
 
           {/* Previous Bookings */}
-          {[1, 2,3,4].map(item => (
+          {[1, 2, 3, 4].map(item => (
             <View key={item} style={styles.prevCardmain}>
               <View key={item} style={styles.prevCard}>
                 <Image source={one} style={styles.prevImage} />
@@ -189,10 +188,14 @@ export default function Booking() {
                   <Text style={styles.detailText}>
                     Syracuse, Connecticut 35624
                   </Text>
+
+                  <TouchableOpacity style={styles.repeatBtn}>
+                    <Text style={styles.repeatBtnText}>Repeat Booking</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
 
-              <View>
+              {/* <View>
                 <View style={styles.prevButtons}>
                   <TouchableOpacity style={styles.viewBtn}>
                     <Text style={styles.viewBtnText}>View Details</Text>
@@ -201,13 +204,11 @@ export default function Booking() {
                     <Text style={styles.repeatBtnText}>Repeat Booking</Text>
                   </TouchableOpacity>
                 </View>
-              </View>
+              </View> */}
             </View>
           ))}
         </View>
-
       </ScrollView>
-     
     </View>
   );
 }
@@ -254,15 +255,15 @@ const styles = StyleSheet.create({
   },
   verticalChar: {
     fontSize: 12,
-    color: '#333', // or any color you like
-    lineHeight: 16, // to control spacing
+    color: '#333',
+    lineHeight: 16, 
   },
 
   cardContent: {
     width: '75%',
     flexDirection: 'row',
     padding: 20,
-    marginLeft: 30, // adjust as needed
+    marginLeft: 30, 
   },
 
   profileRow: {flexDirection: 'row', marginBottom: 8, alignItems: 'center'},
@@ -351,7 +352,7 @@ const styles = StyleSheet.create({
   },
   prevImage: {
     width: 110,
-    height: 94,
+    height: 125,
     borderRadius: 8,
     marginRight: 12,
   },
@@ -370,7 +371,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   repeatBtn: {
-    flex: 1,
+    marginTop: 5,
     padding: 8,
     backgroundColor: '#FE0000',
     alignItems: 'center',

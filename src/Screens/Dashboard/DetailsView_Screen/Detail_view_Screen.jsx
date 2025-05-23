@@ -196,7 +196,12 @@ const Detail_view_Screen = () => {
 
       {/* Success Modal */}
       <Modal visible={showSuccess} transparent animationType="fade">
-        <SuccessModal onClose={handleCloseSuccess} />
+        <SuccessModal
+          onClose={handleCloseSuccess}
+          title="Request Sent Successfully!"
+          emoji="🎉"
+          buttonText="Close"
+        />
       </Modal>
     </SafeAreaView>
   );
@@ -204,11 +209,11 @@ const Detail_view_Screen = () => {
 
 const styles = StyleSheet.create({
   container: {flex: 1, backgroundColor: '#fff'},
-  contentContainer: {flex: 1},
+  contentContainer: {flex: 1,},
   scrollContent: {paddingBottom: 120},
   profileBackground: {height: 200, width: '100%'},
   header: {
-    marginTop: 20,
+    marginTop: 40,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,

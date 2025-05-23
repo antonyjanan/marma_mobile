@@ -127,7 +127,7 @@ const Registervarificationscreen = () => {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.homeIndicator} />
+  
     </SafeAreaView>
   );
 };
@@ -176,6 +176,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   subtitle: {
+     fontStyle: 'italic',
     fontSize: 16,
     color: '#777',
     marginTop: 8,
@@ -265,7 +266,7 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     width: '100%',
-    height: 56,
+    height: 46,
     backgroundColor: 'red',
     borderRadius: 28,
     justifyContent: 'center',

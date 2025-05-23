@@ -46,7 +46,7 @@ const ProfileScreen = () => {
       icon: howToWork,
       title: 'How to work',
       hasArrow: true,
-      navigateTo: 'HowToWork',
+      navigateTo: 'HowToWorkScreen',
     },
   ];
 
@@ -169,20 +169,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
 
-  // Fixed header
-  headerWrapper: {
-    position: 'absolute',
-    top: 20,
-    left: 0,
-    right: 0,
-    zIndex: 10,
-    backgroundColor: 'rgba(245, 245, 245, 0.95)',
-  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 10 : 20,
-    paddingBottom: 10,
+    
     paddingHorizontal: 20,
   },
   headerTitle: {
@@ -207,7 +198,7 @@ const styles = StyleSheet.create({
   profileBackground: {
     width: '100%',
     height: 291.16,
-    marginTop: 60,
+   
     marginBottom: 20,
   },
   profileSection: {

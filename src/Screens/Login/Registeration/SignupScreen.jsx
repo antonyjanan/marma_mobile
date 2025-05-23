@@ -285,6 +285,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   headerSubtitle: {
+     fontStyle: 'italic',
     fontSize: 16,
     color: '#666',
     textAlign: 'center',
