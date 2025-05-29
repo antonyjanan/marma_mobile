@@ -6,7 +6,7 @@ import LoginScreen from '../Screens/Login/login/LoginScreen';
 import VerificationCodeScreen from '../Screens/Login/login/VerificationCodeScreen';
 import SignupScreen from '../Screens/Login/Registeration/SignupScreen';
 import Registervarificationscreen from '../Screens/Login/Registeration/Registervarificationscreen';
-import Roleselection from '../Screens/Roleselection/Roleselection';
+import Roleselection from '../Screens/OnboardScreens/Roleselection';
 import Home from '../Screens/Dashboard/Home';
 import Detail_view_Screen from '../Screens/Dashboard/DetailsView_Screen/Detail_view_Screen';
 import Splashscreen from '../Screens/Login/Splashscreen';
@@ -17,6 +17,10 @@ import ContactUsScreen from '../Screens/Profile/ContactUsScreen';
 import PrivacyPolicyScreen from '../Screens/Profile/PrivacyPolicyScreen';
 import Chatscreen from '../Screens/Chat/Chatscreen';
 import HowToWorkScreen from '../Screens/Profile/HowToWorkScreen';
+import Category_details from '../Screens/Category/Category_details';
+import Onboardscreenone from '../Screens/OnboardScreens/Onboardscreenone';
+import Onboardscreentwo from '../Screens/OnboardScreens/Onboardscreentwo';
+import Onboardscreenthree from '../Screens/OnboardScreens/Onboardscreenthree';
 
 
 const Stack = createStackNavigator();
@@ -26,12 +30,37 @@ function AuthStackScreen() {
   console.log('Authstack');
 
   return (
-    <AuthStack.Navigator initialRouteName="Roleselection">
+    <AuthStack.Navigator initialRouteName="LoginScreen">
+
+
+      <AuthStack.Screen
+        name="Onboardscreenone"
+        component={Onboardscreenone}
+        options={{ headerShown: false }}
+      />
+
+
+      <AuthStack.Screen
+        name="Onboardscreentwo"
+        component={Onboardscreentwo}
+        options={{ headerShown: false }}
+      />
+
+
+
+      <AuthStack.Screen
+        name="Onboardscreenthree"
+        component={Onboardscreenthree}
+        options={{ headerShown: false }}
+      />
+
       <AuthStack.Screen
         name="LoginScreen"
         component={LoginScreen}
         options={{ headerShown: false }}
       />
+
+
 
       <AuthStack.Screen
         name="VerificationCodeScreen"
@@ -125,6 +154,13 @@ function AppStackScreen() {
         component={HowToWorkScreen}
         options={{ headerShown: false }}
       />
+
+
+      <Stack.Screen
+        name="Category_details"
+        component={Category_details}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 }
@@ -144,7 +180,7 @@ const Routes = () => {
   if (isSplashVisible) {
     return <Splashscreen />;
   }
-  console.log(userToken, 'userTokasdasden');
+  console.log(userToken);
 
   return userToken == null ? <AuthStackScreen /> : <AppStackScreen />;
 };

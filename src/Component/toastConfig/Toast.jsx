@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   View,
   Text,
@@ -7,9 +7,11 @@ import {
   SafeAreaView,
   Image,
 } from 'react-native';
+import { AuthContext } from '../../Context/AuthContext';
 
 const Toast = ({onClose, onSend}) => {
-  const [selectedTime, setSelectedTime] = useState('1 hour');
+  // const [selectedTime, setSelectedTime] = useState('1 hour');
+  const {selectedTime,setSelectedTime} = useContext(AuthContext);
 
   return (
     <SafeAreaView style={styles.container}>

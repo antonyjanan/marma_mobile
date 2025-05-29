@@ -154,14 +154,14 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   image: {
-    width: 80,
-    height: 80,
-    marginBottom: 10,
+    width: 300,
+    height:99,
+    marginBottom: 0,
   },
   message: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: 'black',
     textAlign: 'center',
     marginBottom: 25,
   },
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   closeText: {
     color: '#fff',
     fontWeight: '600',
-    fontSize: 16,
+    fontSize: 14,
   },
 });
 

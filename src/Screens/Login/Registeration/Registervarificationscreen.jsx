@@ -1,5 +1,5 @@
 import {useNavigation} from '@react-navigation/core';
-import {useState, useEffect, useRef} from 'react';
+import {useState, useEffect, useRef, useContext} from 'react';
 import {
   View,
   Text,
@@ -12,8 +12,14 @@ import {
   Image,
   StatusBar,
 } from 'react-native';
+import { AuthContext } from '../../../Context/AuthContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Registervarificationscreen = () => {
+
+
+const {setUserToken} =useContext(AuthContext)
+
   const [code, setCode] = useState(['', '', '', '']);
   const inputRefs = useRef([]);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
@@ -64,10 +70,23 @@ const Registervarificationscreen = () => {
     navigation.goBack();
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async() => {
     const verificationCode = code.join('');
     console.log('Verification code submitted:', verificationCode);
+  
+    const fakeToken = 'ytefdgsdf';
+
+
+      try {
+    
+    await AsyncStorage.setItem('accessToken', fakeToken);
+
+    setUserToken(fakeToken);
+
     navigation.navigate('BottomtabHome');
+  } catch (error) {
+    console.error('Error saving token:', error);
+  }
   };
 
   const goToCreateAccount = () => {

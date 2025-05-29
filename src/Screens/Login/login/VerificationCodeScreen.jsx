@@ -1,5 +1,6 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/core';
-import {useState, useEffect, useRef} from 'react';
+import {useState, useEffect, useRef, useContext} from 'react';
 import {
   View,
   Text,
@@ -11,52 +12,64 @@ import {
   Keyboard,
   Image,
   StatusBar,
+  Modal,
+  ActivityIndicator,
 } from 'react-native';
 
-const VerificationCodeScreen = () => {
+import {AuthContext} from '../../../Context/AuthContext';
+import {verify_otp} from '../../../Component/api/apiService';
+import SuccessModal from '../../../Component/toastConfig/SuccessModal';
+
+const VerificationCodeScreen = ({route}) => {
+  const navigation = useNavigation();
+  const {setUserToken, setUser_id} = useContext(AuthContext);
+
+  const {UserToken} = useContext(AuthContext);
+
+  const {phoneNumber} = route.params;
   const [code, setCode] = useState(['', '', '', '']);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [showSuccess, setShowSuccess] = useState(false);
   const inputRefs = useRef([]);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
-  const navigation = useNavigation();
 
   useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener(
-      'keyboardDidShow',
-      () => {
-        setKeyboardVisible(true);
-      },
-    );
-    const keyboardDidHideListener = Keyboard.addListener(
-      'keyboardDidHide',
-      () => {
-        setKeyboardVisible(false);
-      },
-    );
+    console.log('UserToken from AuthContext:', UserToken);
+  }, [UserToken]);
 
+  // Keyboard visibility listener
+  useEffect(() => {
+    const keyboardDidShow = Keyboard.addListener('keyboardDidShow', () =>
+      setKeyboardVisible(true),
+    );
+    const keyboardDidHide = Keyboard.addListener('keyboardDidHide', () =>
+      setKeyboardVisible(false),
+    );
     return () => {
-      keyboardDidShowListener.remove();
-      keyboardDidHideListener.remove();
+      keyboardDidShow.remove();
+      keyboardDidHide.remove();
     };
   }, []);
 
   const handleCodeChange = (text, index) => {
     if (text.length > 1) {
-      text = text[text.length - 1];
+      text = text.slice(-1);
     }
 
     const newCode = [...code];
     newCode[index] = text;
     setCode(newCode);
 
-    // Auto-focus next input
+    // Auto focus next
     if (text !== '' && index < 3) {
-      inputRefs.current[index + 1].focus();
+      inputRefs.current[index + 1]?.focus();
     }
   };
 
   const handleBackspace = index => {
     if (index > 0 && code[index] === '') {
-      inputRefs.current[index - 1].focus();
+      inputRefs.current[index - 1]?.focus();
     }
   };
 
@@ -64,15 +77,66 @@ const VerificationCodeScreen = () => {
     navigation.goBack();
   };
 
-  const handleSubmit = () => {
-    const verificationCode = code.join('');
-    console.log('Verification code submitted:', verificationCode);
-    navigation.navigate('BottomtabHome');
+  const handleSubmit = async () => {
+    const verificationCode = code.join('').trim();
+
+    if (verificationCode.length !== 4) {
+      setErrorMessage('Please enter the full 4-digit OTP.');
+      setShowSuccess(true);
+      return;
+    }
+
+    setLoading(true);
+    setErrorMessage('');
+    setShowSuccess(false);
+
+    const payload = {
+      email: phoneNumber,
+      otp: verificationCode,
+    };
+
+    try {
+      const res = await verify_otp(payload);
+
+      if (res?.result) {
+        setUserToken(res.token);
+        setUser_id(res.u_id);
+
+        setShowSuccess(true);
+
+        // navigation.navigate('BottomtabHome');
+      } else {
+        const errorMsg = res?.message || 'Invalid OTP. Please try again.';
+        setErrorMessage(errorMsg);
+        setShowSuccess(true);
+        console.warn('OTP Verification Failed:', errorMsg);
+      }
+    } catch (err) {
+      console.error('OTP Verification Error:', err);
+      setErrorMessage('Invalid OTP. Please try again.');
+      setShowSuccess(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const goToCreateAccount = () => {
     navigation.navigate('SignupScreen');
   };
+
+  const handleCloseSuccess = () => {
+    setShowSuccess(false);
+  };
+
+  useEffect(() => {
+    if (showSuccess && errorMessage) {
+      const timer = setTimeout(() => {
+        setShowSuccess(false);
+        setErrorMessage('');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showSuccess, errorMessage]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -85,7 +149,9 @@ const VerificationCodeScreen = () => {
             resizeMode="contain"
           />
         </View>
+        <Text>Phone Number: {phoneNumber}</Text>
       </TouchableOpacity>
+
       <View style={styles.content}>
         <Text style={styles.title}>Just One Step Away..!</Text>
         <Text style={styles.subtitle}>
@@ -115,8 +181,15 @@ const VerificationCodeScreen = () => {
           ))}
         </View>
 
-        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-          <Text style={styles.submitButtonText}>Go Ahead</Text>
+        <TouchableOpacity
+          style={styles.submitButton}
+          onPress={handleSubmit}
+          disabled={loading}>
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.submitButtonText}>Go Ahead</Text>
+          )}
         </TouchableOpacity>
       </View>
 
@@ -126,22 +199,28 @@ const VerificationCodeScreen = () => {
           <Text style={styles.createAccountText}>Create an account</Text>
         </TouchableOpacity>
       </View>
+
+      <Modal visible={showSuccess} transparent animationType="fade">
+        <SuccessModal
+          onClose={handleCloseSuccess}
+          title={errorMessage || 'Request Sent Successfully!'}
+          emoji="❗"
+          buttonText="Close"
+        />
+      </Modal>
     </SafeAreaView>
   );
 };
 
-// Simple Key Illustration component
-const KeyIllustration = () => {
-  return (
-    <View style={styles.illustrationContainer}>
-      <Image
-        source={require('../../../assets/images/marmasset/otp.png')}
-        style={styles.illustrationmain}
-        resizeMode="contain"
-      />
-    </View>
-  );
-};
+const KeyIllustration = () => (
+  <View style={styles.illustrationContainer}>
+    <Image
+      source={require('../../../assets/images/marmasset/otp.png')}
+      style={styles.illustrationmain}
+      resizeMode="contain"
+    />
+  </View>
+);
 
 const {width, height} = Dimensions.get('window');
 

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   View,
   Text,
@@ -13,12 +13,15 @@ import {
 } from 'react-native';
 
 import one from '../../../assets/images/marmasset/one.png';
-import {useNavigation} from '@react-navigation/core';
+import {useNavigation, useRoute} from '@react-navigation/core';
 import Toast from '../../../Component/toastConfig/Toast';
 import SuccessModal from '../../../Component/toastConfig/SuccessModal';
+import {AuthContext} from '../../../Context/AuthContext';
+import {therapists_request} from '../../../Component/api/apiService';
 
 const Detail_view_Screen = () => {
   const navigation = useNavigation();
+  const [emoji, setEmoji] = useState('❗');
 
   const handleBackPress = () => {
     navigation.goBack();
@@ -26,14 +29,63 @@ const Detail_view_Screen = () => {
 
   const [isToastVisible, setIsToastVisible] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [Loader, setLoader] = useState(false);
 
   const handleSendRequest = () => {
-    setIsToastVisible(false);
+    setIsToastVisible(true);
     setShowSuccess(true);
   };
 
   const handleCloseSuccess = () => {
     setShowSuccess(false);
+  };
+
+  //---------------------------
+  const {selectedTime, user_id} = useContext(AuthContext);
+  const [errorMessage, setErrorMessage] = useState('');
+  const route = useRoute();
+
+  const {id, name, specialization} = route.params;
+  const Handlerequest = async () => {
+    setLoader(true);
+
+    try {
+      const payload = {
+        service: specialization,
+        user_id: user_id,
+        therapist_id: id,
+        duration: selectedTime,
+      };
+
+      const res = await therapists_request(payload); // use `res`, not `Res` (convention)
+      console.log('Full Response:', res);
+      console.log('Full Response:', payload);
+
+      // Adjust according to your actual API structure
+      const data = res?.result || res?.data?.result || res?.data;
+
+      const message = res?.message || res?.data?.message || res?.data;
+
+      if (data) {
+        setErrorMessage( `Your session request with  ${name} has been successfully approved. You can now start chatting with the therapist and finalize the details.`);
+        setShowSuccess(true);
+        setIsToastVisible(false)
+        setEmoji(require('../../../assets/images/marmasset/Request.png'));
+      } else {
+        console.log('No result returned or result is empty');
+        setErrorMessage(message);
+        setShowSuccess(true);
+        setIsToastVisible(false)
+        setEmoji('❗');
+      }
+    } catch (error) {
+      setErrorMessage(error.message || 'Something went wrong');
+      setIsToastVisible(false);
+      setShowSuccess(true);
+      setfirst(error.response?.data || error.message);
+    } finally {
+      setLoader(false);
+    }
   };
 
   return (
@@ -188,7 +240,7 @@ const Detail_view_Screen = () => {
           <View style={styles.modalContent}>
             <Toast
               onClose={() => setIsToastVisible(false)}
-              onSend={handleSendRequest}
+              onSend={Handlerequest}
             />
           </View>
         </View>
@@ -198,8 +250,8 @@ const Detail_view_Screen = () => {
       <Modal visible={showSuccess} transparent animationType="fade">
         <SuccessModal
           onClose={handleCloseSuccess}
-          title="Request Sent Successfully!"
-          emoji="🎉"
+          title={errorMessage}
+          image={emoji}
           buttonText="Close"
         />
       </Modal>
@@ -209,7 +261,7 @@ const Detail_view_Screen = () => {
 
 const styles = StyleSheet.create({
   container: {flex: 1, backgroundColor: '#fff'},
-  contentContainer: {flex: 1,},
+  contentContainer: {flex: 1},
   scrollContent: {paddingBottom: 120},
   profileBackground: {height: 200, width: '100%'},
   header: {

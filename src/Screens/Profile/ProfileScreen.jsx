@@ -1,5 +1,5 @@
 import {useNavigation} from '@react-navigation/core';
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   View,
   Text,
@@ -23,13 +23,28 @@ import contact from '../../assets/images/marmasset/chat.png'; // Add this image
 import privacy from '../../assets/images/marmasset/lock.png'; // Add this image
 import logout from '../../assets/images/marmasset/logout.png'; // Add this image
 import howToWork from '../../assets/images/marmasset/settings.png'; // Add this image
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AuthContext } from '../../Context/AuthContext';
 
 const ProfileScreen = () => {
+
+  const {setUserToken} =useContext(AuthContext)
+  
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const navigation = useNavigation();
 
   const handleBackPress = () => {
     navigation.goBack();
+  };
+
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.clear(); // Clear all saved data
+      setUserToken(null)
+      navigation.navigate('LoginScreen')
+    } catch (error) {
+      console.error('Error clearing AsyncStorage:', error);
+    }
   };
 
   const menuItems = [
@@ -70,8 +85,7 @@ const ProfileScreen = () => {
       icon: logout,
       title: 'Logout',
       hasArrow: true,
-      navigateTo: 'LoginScreen',
-    }, // Implement logout logic here
+    },
   ];
 
   const renderMenuItem = item => (
@@ -79,10 +93,11 @@ const ProfileScreen = () => {
       key={item.id}
       style={styles.menuItem}
       onPress={() => {
-        if (item.navigateTo) {
+        if (item.title === 'Logout') {
+          handleLogout();
+        } else if (item.navigateTo) {
           navigation.navigate(item.navigateTo);
         }
-        // You can add logout confirmation here if needed
       }}>
       <View style={styles.menuItemLeft}>
         <Image source={item.icon} style={styles.icon} />
@@ -173,7 +188,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 10 : 20,
-    
+
     paddingHorizontal: 20,
   },
   headerTitle: {
@@ -198,7 +213,7 @@ const styles = StyleSheet.create({
   profileBackground: {
     width: '100%',
     height: 291.16,
-   
+
     marginBottom: 20,
   },
   profileSection: {

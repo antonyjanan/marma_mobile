@@ -5,6 +5,10 @@ export const loginUser = (credentials) => {
   return api.post(ENDPOINTS.login, credentials);
 };
 
+export const verify_otp = (credentials) => {
+  return api.post(ENDPOINTS.verify, credentials);
+};
+
 export const registerUser = (data) => {
   return api.post(ENDPOINTS.register, data);
 };
@@ -15,4 +19,14 @@ export const getUserProfile = () => {
 
 export const therapists_list = () => {
   return api.get(ENDPOINTS.therapists_list);
+};
+
+export const therapists_request = (data) => {
+  return api.post(ENDPOINTS.therapi_request,data);
+};
+
+
+
+export const category_list = () => {
+  return api.get(ENDPOINTS.category_list);
 };

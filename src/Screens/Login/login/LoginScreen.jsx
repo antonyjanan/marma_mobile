@@ -1,5 +1,5 @@
 import {useNavigation} from '@react-navigation/core';
-import React, {useState} from 'react';
+import React, { useState} from 'react';
 import {
   View,
   Text,
@@ -11,16 +11,47 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  Modal,
+  ActivityIndicator,
 } from 'react-native';
+import {loginUser} from '../../../Component/api/apiService';
+import SuccessModal from '../../../Component/toastConfig/SuccessModal';
+
 
 const LoginScreen = () => {
   const navigation = useNavigation();
   const [phoneNumber, setPhoneNumber] = useState('');
 
-  const handleGetOTP = () => {
-    navigation.navigate('VerificationCodeScreen', {
-      phoneNumber: phoneNumber,
-    });
+  // State for loading, error message, and success modal
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  const handleCloseSuccess = () => {
+    setShowSuccess(false);
+  };
+  const handleGetOTP = async () => {
+    setLoading(true);
+    try {
+      const payload = {
+        email: phoneNumber,
+      };
+      const handleLogin = await loginUser(payload);
+      if (handleLogin.result === true) {
+        navigation.navigate('VerificationCodeScreen', {
+          phoneNumber: phoneNumber,
+        });
+      } else {
+        setErrorMessage(handleLogin.message );
+        setShowSuccess(true);
+      }
+    } catch (error) {
+      console.log('Login error:', error);
+      setErrorMessage('Server error. Please try again later.');
+      setShowSuccess(true);
+    } finally {
+      setLoading(false);
+    }
     console.log('Getting OTP for:', phoneNumber);
   };
 
@@ -70,16 +101,25 @@ const LoginScreen = () => {
           <View style={styles.inputContainer}>
             <TextInput
               style={styles.input}
-              placeholder="Enter your phone number"
+              placeholder="Enter your phone number or email"
               placeholderTextColor="#888"
-              keyboardType="phone-pad"
+              keyboardType="email-address"
               value={phoneNumber}
               onChangeText={setPhoneNumber}
+              autoComplete='email'
             />
           </View>
 
-          <TouchableOpacity style={styles.otpButton} onPress={handleGetOTP}>
-            <Text style={styles.otpButtonText}>Get OTP</Text>
+          <TouchableOpacity
+            style={styles.otpButton}
+            onPress={handleGetOTP}
+            disabled={loading} // prevent multiple presses
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.otpButtonText}>Get OTP</Text>
+            )}
           </TouchableOpacity>
         </View>
 
@@ -92,6 +132,15 @@ const LoginScreen = () => {
           </View>
         </View>
       </KeyboardAvoidingView>
+
+      <Modal visible={showSuccess} transparent animationType="fade">
+        <SuccessModal
+          onClose={handleCloseSuccess}
+          title={errorMessage || 'Request Sent Successfully!'}
+          emoji="❗"
+          buttonText="Close"
+        />
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -131,7 +180,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   subtitleText: {
-     fontStyle: 'italic',
+    fontStyle: 'italic',
     fontSize: 14,
     color: '#666',
     textAlign: 'center',
